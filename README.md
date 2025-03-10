@@ -1,2 +1,2 @@
 # Ohjelmistotekniikka, harjoitustyö
-* Kuvaus tulee tähän
+* Kuvaus tulee tähän (testi)
