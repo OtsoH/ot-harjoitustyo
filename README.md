@@ -1,2 +1,2 @@
 # Ohjelmistotekniikka, harjoitustyö
-* Kuvaus tulee tähän (testi)
+* Aiheena tulee olemaan Minesweeper 
