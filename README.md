@@ -1,1 +1,2 @@
-# Aiheena tulee olemaan Minesweeper
+# Ot-harjoitustyo
+- Aiheena tulee olemaan minesweeper
