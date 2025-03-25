@@ -1,8 +1,8 @@
 from game import Game
 from board import Board
 
-size = (9,9)
+size = (32,32)
 board = Board(size)
-screenSize = (800, 800)
+screenSize = (900, 900)
 game = Game(board, screenSize)
 game.run()
