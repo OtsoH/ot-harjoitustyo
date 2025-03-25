@@ -25,7 +25,8 @@ class Game():
         topleft = (0,0)
         for row in range(self.board.getSize()[0]):
             for col in range(self.board.getSize()[1]):
-                image = self.images["unopened"]
+                piece = self.board.getPiece((row, col))
+                image = self.getImage(piece)
                 self.screen.blit(image, topleft)
                 topleft = topleft[0]+ self.pieceSize[0], topleft[1]
             topleft = 0, topleft[1] + self.pieceSize[1]
@@ -39,8 +40,9 @@ class Game():
             image = pygame.transform.scale(image, self.pieceSize)
             self.images[filename.split(".")[0]] = image
 
-
-
+    def getImage(self, piece):
+        string = "mine" if piece.gethasMine() else "unopened"
+        return self.images[string]
         
 
     
