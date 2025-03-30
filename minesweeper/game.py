@@ -41,7 +41,7 @@ class Game():
             self.images[filename.split(".")[0]] = image
 
     def getImage(self, piece):
-        string = "mine" if piece.gethasMine() else "unopened"
+        string = "mine" if piece.gethasMine() else str(piece.getNum())
         return self.images[string]
         
 
