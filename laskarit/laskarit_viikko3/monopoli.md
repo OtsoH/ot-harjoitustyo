@@ -1,4 +1,3 @@
-```mermaid
 classDiagram
     Monopolipeli "1" -- "2" Noppa
     Monopolipeli "1" -- "1" Pelilauta
@@ -21,4 +20,3 @@ classDiagram
     Ruutu <|-- SattumaJaYhteismaa
     Ruutu <|-- NormaaliKatu
     Ruutu <|-- AsemaJaLaitos
-```
