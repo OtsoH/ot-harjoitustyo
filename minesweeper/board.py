@@ -3,8 +3,12 @@ from piece import Piece
 
 class Board():
     def __init__(self, size, prob):
+        self.lost = False
+        self.won = False
         self.size = size
         self.prob = prob
+        self.numClicked = 0
+        self.numNonMines = 0
         self.setBoard()
     
     def setBoard(self):
@@ -13,6 +17,8 @@ class Board():
             row = []
             for col in range(self.size[1]):
                 hasMine = random() < self.prob
+                if (not hasMine):
+                    self.numNonMines += 1
                 piece = Piece(hasMine)
                 row.append(piece)
             self.board.append(row)
@@ -41,3 +47,28 @@ class Board():
                     continue
                 neighbours.append(self.getPiece((row, col)))
         return neighbours
+    
+    def clicking(self, piece, flag):
+        if (piece.getrevealed() or (not flag and piece.getflagged())):
+            return
+        if (flag):
+            piece.setflagged()
+            return
+        piece.click()
+        if (piece.gethasMine()):
+            self.lost = True
+            return
+        self.numClicked += 1
+        if (piece.getNum() != 0):
+            return
+        for neighbour in piece.getNeighbours():
+            if (not neighbour.gethasMine() and not neighbour.getrevealed()):
+                self.clicking(neighbour, False)
+        
+        
+    def getlost(self):
+        return self.lost
+
+    def getwon(self):
+        return self.numNonMines == self.numClicked
+    

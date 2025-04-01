@@ -18,6 +18,9 @@ class Piece():
         self.neighbours = neighbours
         self.setNum()
     
+    def getNeighbours(self):
+        return self.neighbours
+    
     def setNum(self):
         self.num = 0
         for piece in self.neighbours:
@@ -26,3 +29,10 @@ class Piece():
         
     def getNum(self):
         return self.num
+    
+    def setflagged(self):
+        self.flagged = not self.flagged
+    
+    def click(self):
+        self.clicked = True
+        self.revealed = True
