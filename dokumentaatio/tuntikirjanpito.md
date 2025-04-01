@@ -5,3 +5,4 @@
 | 23.3. | 2    | tutustuminen testaustyökaluihin, harjoitustyön suunnittelu |
 | 24.3. | 3    | Minesweeperin perustoiminnallisuuden kartoitus ja itse tekeminen |
 | 30.3. | 1    | Lisäsin lähellä olevien miinojen määrän peliin |
+| 30.3. | 3    | Lisäsin klikkailun, flagaamisen sekä simppelin win/lost mekaniikan |
