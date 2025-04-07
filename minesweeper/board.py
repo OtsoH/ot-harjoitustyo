@@ -7,68 +7,67 @@ class Board():
         self.won = False
         self.size = size
         self.prob = prob
-        self.numClicked = 0
-        self.numNonMines = 0
-        self.setBoard()
-    
-    def setBoard(self):
+        self.num_clicked = 0
+        self.num_non_mines = 0
+        self.set_board()
+
+    def set_board(self):
         self.board = []
-        for row in range(self.size[0]):
+        for _ in range(self.size[0]):
             row = []
-            for col in range(self.size[1]):
-                hasMine = random() < self.prob
-                if (not hasMine):
-                    self.numNonMines += 1
-                piece = Piece(hasMine)
+            for _ in range(self.size[1]):
+                has_mine = random() < self.prob
+                if not has_mine:
+                    self.num_non_mines += 1
+                piece = Piece(has_mine)
                 row.append(piece)
             self.board.append(row)
-        self.setNeighbours()
-    
-    def getSize(self):
+        self.set_neighbours()
+
+    def get_size(self):
         return self.size
-    
-    def getPiece(self, idx):
+
+    def get_piece(self, idx):
         return self.board[idx[0]][idx[1]]
-    
-    def setNeighbours(self):
+
+    def set_neighbours(self):
         for row in range(self.size[0]):
             for col in range(self.size[1]):
-                piece = self.getPiece((row, col))
-                neighbours = self.getNeighbours((row, col))
-                piece.setNeighbours(neighbours)
-    
-    def getNeighbours(self, idx):
+                piece = self.get_piece((row, col))
+                neighbours = self.get_neighbours((row, col))
+                piece.set_neighbours(neighbours)
+
+    def get_neighbours(self, idx):
         neighbours = []
         for row in range(idx[0] - 1, idx[0] + 2):
             for col in range(idx[1] - 1, idx[1] + 2):
-                outOfBounds = row < 0 or row >= self.size[0] or col < 0 or col >= self.size[1]
+                out_of_bounds = row < 0 or row >= self.size[0] or col < 0 or col >= self.size[1]
                 same = row == idx[0] and col == idx[1]
-                if (outOfBounds or same):
+                if out_of_bounds or same:
                     continue
-                neighbours.append(self.getPiece((row, col)))
+                neighbours.append(self.get_piece((row, col)))
         return neighbours
-    
+
     def clicking(self, piece, flag):
-        if (piece.getrevealed() or (not flag and piece.getflagged())):
+        if piece.get_revealed() or (not flag and piece.get_flagged()):
             return
-        if (flag):
-            piece.setflagged()
+        if flag:
+            piece.set_flagged()
             return
         piece.click()
-        if (piece.gethasMine()):
+        if piece.get_has_mine():
             self.lost = True
             return
-        self.numClicked += 1
-        if (piece.getNum() != 0):
+        self.num_clicked += 1
+        if piece.get_num() != 0:
             return
-        for neighbour in piece.getNeighbours():
-            if (not neighbour.gethasMine() and not neighbour.getrevealed()):
+        for neighbour in piece.get_neighbours():
+            if not neighbour.get_has_mine() and not neighbour.get_revealed():
                 self.clicking(neighbour, False)
-        
-        
-    def getlost(self):
+
+
+    def get_lost(self):
         return self.lost
 
-    def getwon(self):
-        return self.numNonMines == self.numClicked
-    
+    def get_won(self):
+        return self.num_non_mines == self.num_clicked

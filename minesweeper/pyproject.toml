@@ -20,4 +20,5 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.8.0"
 pytest = "^8.3.5"
+pylint = "^3.3.6"
 

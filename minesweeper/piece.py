@@ -1,38 +1,38 @@
 class Piece():
-    def __init__(self, hasMine):
-        self.hasMine = hasMine
+    def __init__(self, has_mine):
+        self.has_mine = has_mine
         self.revealed = False
         self.flagged = False
-        
+        self.num = 0
+        self.neighbours = []
 
-    def gethasMine(self):
-        return self.hasMine
-    
-    def getrevealed(self):
+    def get_has_mine(self):
+        return self.has_mine
+
+    def get_revealed(self):
         return self.revealed
-    
-    def getflagged(self):
+
+    def get_flagged(self):
         return self.flagged
-    
-    def setNeighbours(self, neighbours):
+
+    def set_neighbours(self, neighbours):
         self.neighbours = neighbours
-        self.setNum()
-    
-    def getNeighbours(self):
+        self.set_num()
+
+    def get_neighbours(self):
         return self.neighbours
-    
-    def setNum(self):
+
+    def set_num(self):
         self.num = 0
         for piece in self.neighbours:
-            if (piece.gethasMine()):
+            if piece.get_has_mine():
                 self.num += 1
-        
-    def getNum(self):
+
+    def get_num(self):
         return self.num
-    
-    def setflagged(self):
+
+    def set_flagged(self):
         self.flagged = not self.flagged
-    
+
     def click(self):
-        self.clicked = True
         self.revealed = True
