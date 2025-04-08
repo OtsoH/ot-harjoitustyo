@@ -63,7 +63,7 @@ class Game():
                 return result
 
     def show_game_over_menu(self, won):
-        #generoitu koodi alkaa#
+        #generoitu koodi alkaa
         config = self._setup_game_over_config(won)
 
         while True:
@@ -159,7 +159,7 @@ class Game():
                     return "main_menu"
 
         return None
-        #generoitu koodi loppuu#
+        #generoitu koodi loppuu
     def _handle_menu_events(self, easy_button, medium_button, hard_button, quit_button):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
