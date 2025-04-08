@@ -9,3 +9,4 @@
 | 30.3. | 2    | Lisäsin kolme eri vaikeustasoa sekä päävalikon |
 | 8.4.  | 2    | Koodin laadun parantamista pylintin avulla |
 | 8.4.  | 1.5  | Voitto/häviö -menun lisääminen |
+| 8.4.  | 2    | Lisää unittestejä, alustavan luokkakaavion tekeminen |
