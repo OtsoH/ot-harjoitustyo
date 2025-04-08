@@ -1,5 +1,4 @@
 # pylint: disable=no-member
-# pylint: disable=too-many-locals,too-many-statements
 import os
 import pygame
 
@@ -15,7 +14,7 @@ class Game():
         pygame.font.init()
         self.screen = None
         self.font = pygame.font.SysFont('verdana', 48, bold=True)
-        self.menu_font = pygame.font.SysFont('verdana', 36)
+        self.menu_font = pygame.font.SysFont('verdana', 36, bold=True)
         self.render_images()
 
     def main_menu(self):
@@ -63,6 +62,104 @@ class Game():
             if result is not None:
                 return result
 
+    def show_game_over_menu(self, won):
+        #generoitu koodi alkaa#
+        config = self._setup_game_over_config(won)
+
+        while True:
+            self._draw_game_over_background(config)
+            buttons = self._draw_game_over_buttons(config)
+
+            pygame.display.flip()
+
+            result = self._handle_game_over_events(buttons)
+            if result:
+                return result
+
+    def _setup_game_over_config(self, won):
+        button_width = min(200, self.screen_size[0] // 2)
+        button_height = min(50, self.screen_size[1] // 10)
+        button_x = self.screen_size[0] // 2 - button_width // 2
+
+        message_y = self.screen_size[1] // 4
+        retry_y = self.screen_size[1] * 0.6
+        menu_y = retry_y + button_height * 1.2
+
+        retry_button = pygame.Rect(button_x, retry_y, button_width, button_height)
+        main_menu_button = pygame.Rect(button_x, menu_y, button_width, button_height)
+
+        message = "You Won!" if won else "You Lost!"
+        color = (0, 200, 0) if won else (255, 0, 0)
+
+        title_font_size = max(16, min(48, int(self.screen_size[1] / 10)))
+        button_font_size = max(12, min(36, int(self.screen_size[1] / 15)))
+        title_font = pygame.font.SysFont('verdana', title_font_size, bold=True)
+        button_font = pygame.font.SysFont('verdana', button_font_size, bold=True)
+
+        return {
+            "message": message,
+            "color": color,
+            "title_font": title_font,
+            "button_font": button_font,
+            "message_y": message_y,
+            "buttons": {
+                "retry": retry_button,
+                "main_menu": main_menu_button
+            }
+        }
+
+    def _draw_game_over_background(self, config):
+        self.draw()
+
+        overlay = pygame.Surface(self.screen_size, pygame.SRCALPHA)
+        overlay.fill((255, 255, 255, 180))
+        self.screen.blit(overlay, (0, 0))
+
+        title = config["title_font"].render(config["message"], True, config["color"])
+        title_rect = title.get_rect(center=(self.screen_size[0]/2, config["message_y"]))
+        self.screen.blit(title, title_rect)
+
+    def _draw_game_over_buttons(self, config):
+        buttons = []
+
+        button_data = [
+            (config["buttons"]["retry"], "Retry"),
+            (config["buttons"]["main_menu"], "Menu")
+        ]
+
+        for button, text in button_data:
+            button_image = pygame.transform.scale(
+                self.images['unopened'],
+                (button.width, button.height)
+            )
+            self.screen.blit(button_image, button)
+
+            text_surface = config["button_font"].render(text, True, (255, 255, 255))
+            text_rect = text_surface.get_rect(center=button.center)
+            self.screen.blit(text_surface, text_rect)
+
+            buttons.append((button, text))
+
+        return buttons
+
+    def _handle_game_over_events(self, buttons):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                retry_button = buttons[0][0]
+                main_menu_button = buttons[1][0]
+
+                if retry_button.collidepoint(mouse_pos):
+                    return "retry"
+                if main_menu_button.collidepoint(mouse_pos):
+                    return "main_menu"
+
+        return None
+        #generoitu koodi loppuu#
     def _handle_menu_events(self, easy_button, medium_button, hard_button, quit_button):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -100,17 +197,20 @@ class Game():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    return
+                    return None
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     position = pygame.mouse.get_pos()
                     flagging = pygame.mouse.get_pressed()[2]
                     self.clicking(position, flagging)
             self.draw()
             pygame.display.flip()
+
             if self.board.get_won():
-                print("You won!")
-                pygame.quit()
-                return
+                return self.show_game_over_menu(True)
+
+            if self.board.get_lost():
+                return self.show_game_over_menu(False)
 
     def draw(self):
         topleft = (0,0)
