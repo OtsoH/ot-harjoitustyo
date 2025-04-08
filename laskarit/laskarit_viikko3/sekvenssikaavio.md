@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
     participant main
     participant laitehallinto as HKLLaitehallinto
