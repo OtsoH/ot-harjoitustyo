@@ -10,7 +10,7 @@ Pelissä käytetyt kuvat ovat peräisin [Andreas Isnes Nilseniltä](https://gith
 - Suorita `main.py`-tiedosto Pythonilla.
 
 ## **Hakemistot**
-- [**Laskaritehtävät**](laskarit)
 - [**Tuntikirjanpito**](dokumentaatio/tuntikirjanpito.md)
 - [**Changelog**](dokumentaatio/changelog.md)
 - [**Määrittelydokumentti**](dokumentaatio/maarittelydokumentti.md)
+- [**Arkkitehtuurikuvaus**](dokumentaatio/arkkitehtuuri.md)
