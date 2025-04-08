@@ -7,4 +7,4 @@
 # viikko 4
 - Pelissä on nyt voitto/häviö -menu, josta pystyy yrittämään uudelleen tai palaamaan päävalikkoon.
 - Ohjelman koodin laatua on paranneltu pylintin huomautuksien mukaisesti (tämänhetkinen arvosana 9.90/10)
-(main.py ja game.py -tiedostoissa on käytössä # pylint: disable=no-member, sillä pylint ei osaa tunnistaa joitakin pygamen luomia ominaisuuksia ja metodeja)
+- main.py ja game.py -tiedostoissa on käytössä # pylint: disable=no-member, sillä pylint ei osaa tunnistaa joitakin pygamen luomia ominaisuuksia ja metodeja
