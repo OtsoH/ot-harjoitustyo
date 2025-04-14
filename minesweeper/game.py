@@ -1,5 +1,6 @@
 # pylint: disable=no-member
 import os
+import time
 import pygame
 
 class Game():
@@ -16,6 +17,8 @@ class Game():
         self.font = pygame.font.SysFont('verdana', 48, bold=True)
         self.menu_font = pygame.font.SysFont('verdana', 36, bold=True)
         self.render_images()
+        self.start_time = 0
+        self.elapsed_time = 0
 
     def main_menu(self):
         self.screen = pygame.display.set_mode((self.screen_size))
@@ -63,7 +66,6 @@ class Game():
                 return result
 
     def show_game_over_menu(self, won):
-        #generoitu koodi alkaa
         config = self._setup_game_over_config(won)
 
         while True:
@@ -82,6 +84,7 @@ class Game():
         button_x = self.screen_size[0] // 2 - button_width // 2
 
         message_y = self.screen_size[1] // 4
+        time_y = message_y + 50
         retry_y = self.screen_size[1] * 0.6
         menu_y = retry_y + button_height * 1.2
 
@@ -92,20 +95,27 @@ class Game():
         color = (0, 200, 0) if won else (255, 0, 0)
 
         title_font_size = max(16, min(48, int(self.screen_size[1] / 10)))
+        time_font_size = max(14, min(36, int(self.screen_size[1] / 12)))
         button_font_size = max(12, min(36, int(self.screen_size[1] / 15)))
+
         title_font = pygame.font.SysFont('verdana', title_font_size, bold=True)
+        time_font = pygame.font.SysFont('verdana', time_font_size, bold=True)
         button_font = pygame.font.SysFont('verdana', button_font_size, bold=True)
 
         return {
             "message": message,
             "color": color,
             "title_font": title_font,
+            "time_font": time_font,
             "button_font": button_font,
             "message_y": message_y,
+            "time_y": time_y,
             "buttons": {
                 "retry": retry_button,
                 "main_menu": main_menu_button
-            }
+            },
+            "won": won,
+            "elapsed_time": self.elapsed_time
         }
 
     def _draw_game_over_background(self, config):
@@ -118,6 +128,12 @@ class Game():
         title = config["title_font"].render(config["message"], True, config["color"])
         title_rect = title.get_rect(center=(self.screen_size[0]/2, config["message_y"]))
         self.screen.blit(title, title_rect)
+
+        if config["won"]:
+            time_text = f"Your time: {config['elapsed_time']:.2f}s"
+            time_surface = config["time_font"].render(time_text, True, (255, 255, 255))
+            time_rect = time_surface.get_rect(center=(self.screen_size[0]/2, config["time_y"]))
+            self.screen.blit(time_surface, time_rect)
 
     def _draw_game_over_buttons(self, config):
         buttons = []
@@ -159,7 +175,7 @@ class Game():
                     return "main_menu"
 
         return None
-        #generoitu koodi loppuu
+
     def _handle_menu_events(self, easy_button, medium_button, hard_button, quit_button):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -193,6 +209,8 @@ class Game():
     def run(self):
         self.screen = pygame.display.set_mode((self.screen_size))
         pygame.display.set_caption("Minesweeper")
+        self.start_time = time.time()
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -203,6 +221,10 @@ class Game():
                     position = pygame.mouse.get_pos()
                     flagging = pygame.mouse.get_pressed()[2]
                     self.clicking(position, flagging)
+
+            self.elapsed_time = time.time() - self.start_time
+            pygame.display.set_caption(f"Minesweeper - Time: {self.elapsed_time:.2f}s")
+
             self.draw()
             pygame.display.flip()
 

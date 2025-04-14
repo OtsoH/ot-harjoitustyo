@@ -16,7 +16,18 @@ def main():
 
             size_x, size_y, prob = settings
             board_size = (size_x, size_y)
-            screen_size = (min(size_x * 32, 900), min(size_y * 32, 900))
+
+            if size_x == 8 and size_y == 8:
+                screen_width = size_x * 50
+                screen_height = size_y * 50
+            elif size_x == 16 and size_y == 16:
+                screen_width = size_x * 30
+                screen_height = size_y * 30
+            else:
+                screen_width = size_x * 25
+                screen_height = size_y * 25
+
+            screen_size = (screen_width, screen_height)
 
             action = "retry"
             while action == "retry":
