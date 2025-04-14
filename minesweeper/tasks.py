@@ -27,3 +27,8 @@ def coverage_report(ctx):
 def test(ctx):
     pty = sys.platform != "win32"
     ctx.run("pytest tests/", pty=pty)
+
+@task()
+def lint(ctx):
+    pty = sys.platform != "win32"
+    ctx.run("pylint board.py game.py main.py piece.py", pty=pty)
