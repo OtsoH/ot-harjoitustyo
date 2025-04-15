@@ -8,3 +8,8 @@
 - Pelissä on nyt voitto/häviö -menu, josta pystyy yrittämään uudelleen tai palaamaan päävalikkoon.
 - Ohjelman koodin laatua on paranneltu pylintin huomautuksien mukaisesti (tämänhetkinen arvosana 9.90/10)
 - main.py ja game.py -tiedostoissa on käytössä # pylint: disable=no-member, sillä pylint ei osaa tunnistaa joitakin pygamen luomia ominaisuuksia ja metodeja
+
+# viikko 5
+- Peliin on lisätty ajastin, joka näkyy pelin ikkunassa, voittaessa aika tulee myös näkyviin ruudulle.
+- Pelin koodia on restrukturoitu lisää (mm. lisätty Gameconfig -luokka)
+- Ohjelman koodin laatua on paranneltu pylintin huomautuksien mukaisesti (tämänhetkinen arvosana 10/10)

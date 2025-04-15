@@ -3,6 +3,9 @@ Tämä projekti toteuttaa klassisen **Minesweeper**-pelin. Pelin tavoitteena on 
 
 Pelissä käytetyt kuvat ovat peräisin [Andreas Isnes Nilseniltä](https://github.com/andreasisnes/pygame-minesweeper-sprites/blob/master/minesweeper/images/tiles/2.0.png).
 
+## **Releases**
+- [Viikko 5](https://github.com/OtsoH/ot-harjoitustyo/releases/tag/viikko5)
+
 ## **Käyttöohjeet**
 
 **Käynnistä peli**:
