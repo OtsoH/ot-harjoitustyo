@@ -12,3 +12,4 @@
 | 8.4.  | 2    | Lisää unittestejä, alustavan luokkakaavion tekeminen |
 | 14.4.  | 1    | Ajastimen lisäys |
 | 15.4.  | 2    | game.py ja main.py tiedostojen restrukturointia |
+| 15.4.  | 1    | Lisää unittestejä, ensimmäisen sekvenssikaavion tekeminen |
