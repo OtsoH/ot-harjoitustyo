@@ -81,5 +81,3 @@ class TestBoard(unittest.TestCase):
         for neighbor in center_piece.get_neighbours():
             self.assertTrue(neighbor.get_revealed())
 
-if __name__ == '__main__':
-    unittest.main()
