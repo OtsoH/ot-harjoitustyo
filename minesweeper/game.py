@@ -3,6 +3,13 @@ import os
 import time
 import pygame
 
+class GameConfig:
+    def __init__(self):
+        self.screen = None
+        self.font = None
+        self.menu_font = None
+        self.images = {}
+
 class Game():
     def __init__(self, board, screen_size):
         self.board = board
@@ -13,16 +20,27 @@ class Game():
         )
         pygame.init()
         pygame.font.init()
-        self.screen = None
-        self.font = pygame.font.SysFont('verdana', 48, bold=True)
-        self.menu_font = pygame.font.SysFont('verdana', 36, bold=True)
-        self.render_images()
+        self.config = GameConfig()
+        self.config.screen = None
+        self.config.font = pygame.font.SysFont('verdana', 48, bold=True)
+        self.config.menu_font = pygame.font.SysFont('verdana', 36, bold=True)
+        self._render_images()
         self.start_time = 0
         self.elapsed_time = 0
 
     def main_menu(self):
-        self.screen = pygame.display.set_mode((self.screen_size))
+        self.config.screen = pygame.display.set_mode((self.screen_size))
         pygame.display.set_caption("Minesweeper - Main Menu")
+
+        buttons = self._create_menu_buttons()
+
+        while True:
+            self._draw_menu_screen(buttons)
+            result = self._handle_menu_events(buttons)
+            if result is not None:
+                return result
+
+    def _create_menu_buttons(self):
         button_width = 200
         button_height = 50
         button_x = self.screen_size[0] // 2 - button_width // 2
@@ -32,38 +50,51 @@ class Game():
         hard_button = pygame.Rect(button_x, 350, button_width, button_height)
         quit_button = pygame.Rect(button_x, 450, button_width, button_height)
 
-        while True:
-            self.screen.fill((255, 255, 255))
+        return {
+            "easy": easy_button,
+            "medium": medium_button,
+            "hard": hard_button,
+            "quit": quit_button,
+            "width": button_width,
+            "height": button_height
+        }
 
-            title = self.font.render('Minesweeper', True, (255, 0, 0))
-            title_rect = title.get_rect(center=(self.screen_size[0]/2, 80))
+    def _draw_menu_screen(self, buttons):
+        self.config.screen.fill((255, 255, 255))
 
-            mine_size = (48, 48)
-            mine_image = pygame.transform.scale(self.images['minex'], mine_size)
+        self._draw_menu_title()
 
-            left_mine_pos = (
-                title_rect.left - mine_size[0] - 20,
-                title_rect.centery - mine_size[1]//2
-            )
-            right_mine_pos = (title_rect.right + 20, title_rect.centery - mine_size[1]//2)
+        button_list = [
+            (buttons["easy"], 'Easy'),
+            (buttons["medium"], 'Medium'),
+            (buttons["hard"], 'Hard'),
+            (buttons["quit"], 'Quit')
+        ]
 
-            self.screen.blit(title, title_rect)
-            self.screen.blit(mine_image, left_mine_pos)
-            self.screen.blit(mine_image, right_mine_pos)
+        self._draw_menu_buttons(
+            button_list,
+            buttons["width"],
+            buttons["height"]
+        )
 
-            self._draw_menu_buttons(
-                [(easy_button, 'Easy'),
-                 (medium_button, 'Medium'),
-                 (hard_button, 'Hard'),
-                 (quit_button, 'Quit')],
-                button_width, button_height
-            )
+        pygame.display.flip()
 
-            pygame.display.flip()
+    def _draw_menu_title(self):
+        title = self.config.font.render('Minesweeper', True, (255, 0, 0))
+        title_rect = title.get_rect(center=(self.screen_size[0]/2, 80))
 
-            result = self._handle_menu_events(easy_button, medium_button, hard_button, quit_button)
-            if result is not None:
-                return result
+        mine_size = (48, 48)
+        mine_image = pygame.transform.scale(self.config.images['minex'], mine_size)
+
+        left_mine_pos = (
+            title_rect.left - mine_size[0] - 20,
+            title_rect.centery - mine_size[1]//2
+        )
+        right_mine_pos = (title_rect.right + 20, title_rect.centery - mine_size[1]//2)
+
+        self.config.screen.blit(title, title_rect)
+        self.config.screen.blit(mine_image, left_mine_pos)
+        self.config.screen.blit(mine_image, right_mine_pos)
 
     def show_game_over_menu(self, won):
         config = self._setup_game_over_config(won)
@@ -79,6 +110,25 @@ class Game():
                 return result
 
     def _setup_game_over_config(self, won):
+        button_sizes = self._calculate_button_sizes()
+        buttons = self._create_game_over_buttons(button_sizes)
+
+        message, colors, fonts = self._prepare_game_over_text(won, button_sizes)
+
+        return {
+            "message": message,
+            "color": colors["title"],
+            "title_font": fonts["title"],
+            "time_font": fonts["time"],
+            "button_font": fonts["button"],
+            "message_y": button_sizes["message_y"],
+            "time_y": button_sizes["time_y"],
+            "buttons": buttons,
+            "won": won,
+            "elapsed_time": self.elapsed_time
+        }
+
+    def _calculate_button_sizes(self):
         button_width = min(200, self.screen_size[0] // 2)
         button_height = min(50, self.screen_size[1] // 10)
         button_x = self.screen_size[0] // 2 - button_width // 2
@@ -88,52 +138,70 @@ class Game():
         retry_y = self.screen_size[1] * 0.6
         menu_y = retry_y + button_height * 1.2
 
-        retry_button = pygame.Rect(button_x, retry_y, button_width, button_height)
-        main_menu_button = pygame.Rect(button_x, menu_y, button_width, button_height)
+        return {
+            "width": button_width,
+            "height": button_height,
+            "x": button_x,
+            "message_y": message_y,
+            "time_y": time_y,
+            "retry_y": retry_y,
+            "menu_y": menu_y
+        }
 
+    def _create_game_over_buttons(self, sizes):
+        retry_button = pygame.Rect(
+            sizes["x"],
+            sizes["retry_y"],
+            sizes["width"],
+            sizes["height"]
+        )
+
+        main_menu_button = pygame.Rect(
+            sizes["x"],
+            sizes["menu_y"],
+            sizes["width"],
+            sizes["height"]
+        )
+
+        return {
+            "retry": retry_button,
+            "main_menu": main_menu_button
+        }
+
+    def _prepare_game_over_text(self, won, _):
         message = "You Won!" if won else "You Lost!"
-        color = (0, 200, 0) if won else (255, 0, 0)
+        colors = {
+            "title": (0, 200, 0) if won else (255, 0, 0)
+        }
 
         title_font_size = max(16, min(48, int(self.screen_size[1] / 10)))
         time_font_size = max(14, min(36, int(self.screen_size[1] / 12)))
         button_font_size = max(12, min(36, int(self.screen_size[1] / 15)))
 
-        title_font = pygame.font.SysFont('verdana', title_font_size, bold=True)
-        time_font = pygame.font.SysFont('verdana', time_font_size, bold=True)
-        button_font = pygame.font.SysFont('verdana', button_font_size, bold=True)
-
-        return {
-            "message": message,
-            "color": color,
-            "title_font": title_font,
-            "time_font": time_font,
-            "button_font": button_font,
-            "message_y": message_y,
-            "time_y": time_y,
-            "buttons": {
-                "retry": retry_button,
-                "main_menu": main_menu_button
-            },
-            "won": won,
-            "elapsed_time": self.elapsed_time
+        fonts = {
+            "title": pygame.font.SysFont('verdana', title_font_size, bold=True),
+            "time": pygame.font.SysFont('verdana', time_font_size, bold=True),
+            "button": pygame.font.SysFont('verdana', button_font_size, bold=True)
         }
 
+        return message, colors, fonts
+
     def _draw_game_over_background(self, config):
-        self.draw()
+        self._draw()
 
         overlay = pygame.Surface(self.screen_size, pygame.SRCALPHA)
         overlay.fill((255, 255, 255, 180))
-        self.screen.blit(overlay, (0, 0))
+        self.config.screen.blit(overlay, (0, 0))
 
         title = config["title_font"].render(config["message"], True, config["color"])
         title_rect = title.get_rect(center=(self.screen_size[0]/2, config["message_y"]))
-        self.screen.blit(title, title_rect)
+        self.config.screen.blit(title, title_rect)
 
         if config["won"]:
             time_text = f"Your time: {config['elapsed_time']:.2f}s"
             time_surface = config["time_font"].render(time_text, True, (255, 255, 255))
             time_rect = time_surface.get_rect(center=(self.screen_size[0]/2, config["time_y"]))
-            self.screen.blit(time_surface, time_rect)
+            self.config.screen.blit(time_surface, time_rect)
 
     def _draw_game_over_buttons(self, config):
         buttons = []
@@ -145,14 +213,14 @@ class Game():
 
         for button, text in button_data:
             button_image = pygame.transform.scale(
-                self.images['unopened'],
+                self.config.images['unopened'],
                 (button.width, button.height)
             )
-            self.screen.blit(button_image, button)
+            self.config.screen.blit(button_image, button)
 
             text_surface = config["button_font"].render(text, True, (255, 255, 255))
             text_rect = text_surface.get_rect(center=button.center)
-            self.screen.blit(text_surface, text_rect)
+            self.config.screen.blit(text_surface, text_rect)
 
             buttons.append((button, text))
 
@@ -176,7 +244,7 @@ class Game():
 
         return None
 
-    def _handle_menu_events(self, easy_button, medium_button, hard_button, quit_button):
+    def _handle_menu_events(self, buttons):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -184,13 +252,13 @@ class Game():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
-                if easy_button.collidepoint(mouse_pos):
+                if buttons["easy"].collidepoint(mouse_pos):
                     return (8, 8, 0.1)
-                if medium_button.collidepoint(mouse_pos):
+                if buttons["medium"].collidepoint(mouse_pos):
                     return (16, 16, 0.12)
-                if hard_button.collidepoint(mouse_pos):
+                if buttons["hard"].collidepoint(mouse_pos):
                     return (32, 32, 0.15)
-                if quit_button.collidepoint(mouse_pos):
+                if buttons["quit"].collidepoint(mouse_pos):
                     pygame.quit()
                     return None
         return None
@@ -198,16 +266,16 @@ class Game():
     def _draw_menu_buttons(self, buttons, button_width, button_height):
         for button, text in buttons:
             button_image = pygame.transform.scale(
-                self.images['unopened'],
+                self.config.images['unopened'],
                 (button_width, button_height)
             )
-            self.screen.blit(button_image, button)
-            text_surface = self.menu_font.render(text, True, (255, 255, 255))
+            self.config.screen.blit(button_image, button)
+            text_surface = self.config.menu_font.render(text, True, (255, 255, 255))
             text_rect = text_surface.get_rect(center=button.center)
-            self.screen.blit(text_surface, text_rect)
+            self.config.screen.blit(text_surface, text_rect)
 
     def run(self):
-        self.screen = pygame.display.set_mode((self.screen_size))
+        self.config.screen = pygame.display.set_mode((self.screen_size))
         pygame.display.set_caption("Minesweeper")
         self.start_time = time.time()
 
@@ -220,12 +288,12 @@ class Game():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     position = pygame.mouse.get_pos()
                     flagging = pygame.mouse.get_pressed()[2]
-                    self.clicking(position, flagging)
+                    self._clicking(position, flagging)
 
             self.elapsed_time = time.time() - self.start_time
             pygame.display.set_caption(f"Minesweeper - Time: {self.elapsed_time:.2f}s")
 
-            self.draw()
+            self._draw()
             pygame.display.flip()
 
             if self.board.get_won():
@@ -234,34 +302,34 @@ class Game():
             if self.board.get_lost():
                 return self.show_game_over_menu(False)
 
-    def draw(self):
+    def _draw(self):
         topleft = (0,0)
         for row in range(self.board.get_size()[0]):
             for col in range(self.board.get_size()[1]):
                 piece = self.board.get_piece((row, col))
-                image = self.get_image(piece)
-                self.screen.blit(image, topleft)
+                image = self._get_image(piece)
+                self.config.screen.blit(image, topleft)
                 topleft = topleft[0]+ self.piece_size[0], topleft[1]
             topleft = 0, topleft[1] + self.piece_size[1]
 
-    def render_images(self):
-        self.images = {}
+    def _render_images(self):
+        self.config.images = {}
         for filename in os.listdir("images"):
             if not filename.endswith(".png"):
                 continue
             image = pygame.image.load(r"images/" + filename)
             image = pygame.transform.scale(image, self.piece_size)
-            self.images[filename.split(".")[0]] = image
+            self.config.images[filename.split(".")[0]] = image
 
-    def get_image(self, piece):
+    def _get_image(self, piece):
         string = None
         if piece.get_revealed():
             string = "minered" if piece.has_mine else str(piece.get_num())
         else:
             string = "flag" if piece.get_flagged() else "unopened"
-        return self.images[string]
+        return self.config.images[string]
 
-    def clicking(self, position, flagging):
+    def _clicking(self, position, flagging):
         if self.board.get_lost():
             return
         idx = position[1] // self.piece_size[1], position[0] // self.piece_size[0]
