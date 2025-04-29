@@ -13,3 +13,7 @@
 - Peliin on lisätty ajastin, joka näkyy pelin ikkunassa, voittaessa aika tulee myös näkyviin ruudulle.
 - Pelin koodia on restrukturoitu lisää (mm. lisätty Gameconfig -luokka)
 - Ohjelman koodin laatua on paranneltu pylintin huomautuksien mukaisesti (tämänhetkinen arvosana 10/10)
+
+# viikko 6
+- Ohjelman luokille ja metodeille on lisätty dogstring-dokumentaatio
+- Coverage-raportti näyttää nyt vain olelliset tiedostot (mm. käyttöliittymätiedosto game.py otettu pois)
