@@ -13,3 +13,4 @@
 | 14.4.  | 1    | Ajastimen lisäys |
 | 15.4.  | 2    | game.py ja main.py tiedostojen restrukturointia |
 | 15.4.  | 1    | Lisää unittestejä, ensimmäisen sekvenssikaavion tekeminen |
+| 29.4.  | 1.5  | Dogstring-dokumentaation lisääminen |

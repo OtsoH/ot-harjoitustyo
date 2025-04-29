@@ -4,6 +4,14 @@ from game import Game
 from board import Board
 
 def _configure_screen(settings):
+    """Määrittää pelilaudan ja ikkunan koon vaikeustason mukaan.
+
+    Args:
+        settings (tuple): (rivit, sarakkeet, miinojen todennäköisyys)
+
+    Returns:
+        tuple: (board_size, screen_size, prob)
+    """
     size_x, size_y, prob = settings
     board_size = (size_x, size_y)
 
@@ -21,6 +29,14 @@ def _configure_screen(settings):
     return board_size, screen_size, prob
 
 def _run_game_loop(settings):
+    """Suorittaa yhden pelisilmukan valituilla asetuksilla.
+
+    Args:
+        settings (tuple): (rivit, sarakkeet, miinojen todennäköisyys)
+
+    Returns:
+        False, jos peli lopetetaan, True jos käyttäjä haluaa pelata uudelleen.
+    """
     if settings is None:
         return False
 
@@ -38,6 +54,8 @@ def _run_game_loop(settings):
     return True
 
 def main():
+    """Käynnistää pelin ja hallitsee päävalikkoa sekä pelisilmukkaa."""
+
     initial_size = (900, 900)
     try:
         continue_game = True
