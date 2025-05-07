@@ -10,7 +10,8 @@
 | 8.4.  | 2    | Koodin laadun parantamista pylintin avulla |
 | 8.4.  | 1.5  | Voitto/häviö -menun lisääminen |
 | 8.4.  | 2    | Lisää unittestejä, alustavan luokkakaavion tekeminen |
-| 14.4.  | 1    | Ajastimen lisäys |
-| 15.4.  | 2    | game.py ja main.py tiedostojen restrukturointia |
-| 15.4.  | 1    | Lisää unittestejä, ensimmäisen sekvenssikaavion tekeminen |
-| 29.4.  | 1.5  | Dogstring-dokumentaation lisääminen |
+| 14.4. | 1    | Ajastimen lisäys |
+| 15.4. | 2    | game.py ja main.py tiedostojen restrukturointia |
+| 15.4. | 1    | Lisää unittestejä, ensimmäisen sekvenssikaavion tekeminen |
+| 29.4. | 1.5  | Dogstring-dokumentaation lisääminen |
+| 7.5.  | 2.5  | Ohjelman refaktorointia, tehty uudet luokat GameUI ja GameLogic  |

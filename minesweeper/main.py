@@ -3,7 +3,7 @@ import pygame
 from game import Game
 from board import Board
 
-def _configure_screen(settings):
+def configure_screen(settings):
     """Määrittää pelilaudan ja ikkunan koon vaikeustason mukaan.
 
     Args:
@@ -28,7 +28,7 @@ def _configure_screen(settings):
     screen_size = (screen_width, screen_height)
     return board_size, screen_size, prob
 
-def _run_game_loop(settings):
+def run_game_loop(settings):
     """Suorittaa yhden pelisilmukan valituilla asetuksilla.
 
     Args:
@@ -40,7 +40,7 @@ def _run_game_loop(settings):
     if settings is None:
         return False
 
-    board_size, screen_size, prob = _configure_screen(settings)
+    board_size, screen_size, prob = configure_screen(settings)
 
     action = "retry"
     while action == "retry":
@@ -65,7 +65,7 @@ def main():
 
             settings = game.main_menu()
 
-            continue_game = _run_game_loop(settings)
+            continue_game = run_game_loop(settings)
 
     except pygame.error:
         pass

@@ -17,3 +17,8 @@
 # viikko 6
 - Ohjelman luokille ja metodeille on lisätty dogstring-dokumentaatio
 - Coverage-raportti näyttää nyt vain olelliset tiedostot (mm. käyttöliittymätiedosto game.py otettu pois)
+
+# viikko 7
+- Yhdistetty Game -luokan "draw_menu_buttons" ja "draw_game_over_buttons" yhdeksi "draw_buttons" metodiksi
+- Game -luokkaa sekä sen sisältäviä metodeja on pilkottu pienempiin osiin: uudet GameUI ja GameLogic -luokat hallitsevat pääsääntöisesti käyttöliittymää ja pelilogiikkaa.
+- Hyödynnetty tekoälyä (GitHub Copilot) refaktoroinnin apuna erityisesti luokkien välisten riippuvuuksien muuttamisessa ja metodikutsujen päivittämisessä uuden arkkitehtuurin mukaisiksi
