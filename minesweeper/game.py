@@ -294,7 +294,9 @@ class GameLogic:
             str: Kuvan nimi.
         """
         if piece.get_revealed():
-            return "minered" if piece.has_mine else str(piece.get_num())
+            if piece.get_has_mine():
+                return "minered" if piece == self.board.clicked_mine else "mine"
+            return str(piece.get_num())
         return "flag" if piece.get_flagged() else "unopened"
 
 class Game:
@@ -347,9 +349,11 @@ class Game:
             pygame.display.flip()
 
             if self.board.get_won():
+                self.board.reveal_all()
                 return self.show_game_over_menu(True)
 
             if self.board.get_lost():
+                self.board.reveal_all()
                 return self.show_game_over_menu(False)
 
     def draw(self):
@@ -389,11 +393,11 @@ class Game:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if buttons["easy"].collidepoint(mouse_pos):
-                    return (8, 8, 0.1)
+                    return (9, 9, 10)
                 if buttons["medium"].collidepoint(mouse_pos):
-                    return (16, 16, 0.12)
+                    return (16, 16, 40)
                 if buttons["hard"].collidepoint(mouse_pos):
-                    return (32, 32, 0.15)
+                    return (16, 30, 99)
                 if buttons["quit"].collidepoint(mouse_pos):
                     pygame.quit()
                     return None

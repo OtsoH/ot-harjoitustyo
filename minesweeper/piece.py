@@ -15,17 +15,14 @@ class Piece():
 
     def get_has_mine(self):
         """Palauttaa True, jos ruudussa on miina."""
-
         return self.has_mine
 
     def get_revealed(self):
         """Palauttaa True, jos ruutu on paljastettu."""
-
         return self.revealed
 
     def get_flagged(self):
         """Palauttaa True, jos ruutu on liputettu."""
-
         return self.flagged
 
     def set_neighbours(self, neighbours):
@@ -39,12 +36,10 @@ class Piece():
 
     def get_neighbours(self):
         """Palauttaa ruudun naapurit."""
-
         return self.neighbours
 
     def set_num(self):
         """Laskee ja asettaa viereisten miinojen määrän."""
-
         self.num = 0
         for piece in self.neighbours:
             if piece.get_has_mine():
@@ -52,7 +47,6 @@ class Piece():
 
     def get_num(self):
         """Palauttaa viereisten miinojen määrän."""
-
         return self.num
 
     def set_flagged(self):
@@ -61,5 +55,4 @@ class Piece():
 
     def click(self):
         """Paljastaa ruudun."""
-
         self.revealed = True

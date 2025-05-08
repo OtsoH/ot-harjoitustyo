@@ -7,7 +7,7 @@ def configure_screen(settings, max_cell_size=50):
     """Määrittää pelilaudan ja ikkunan koon vaikeustason mukaan.
 
     Args:
-        settings (tuple): (rivit, sarakkeet, miinojen todennäköisyys)
+        settings (tuple): (rivit, sarakkeet, miinojen määrä)
         max_cell_size (int): Yksittäisen ruudun maksimikoko pikseleinä.
 
     Returns:
@@ -25,7 +25,7 @@ def run_game_loop(settings, max_cell_size=50):
     """Suorittaa yhden pelisilmukan valituilla asetuksilla.
 
     Args:
-        settings (tuple): (rivit, sarakkeet, miinojen todennäköisyys)
+        settings (tuple): (rivit, sarakkeet, miinojen määrä)
         max_cell_size (int): Yksittäisen ruudun maksimikoko pikseleinä.
 
     Returns:
@@ -34,11 +34,11 @@ def run_game_loop(settings, max_cell_size=50):
     if settings is None:
         return False
 
-    board_size, _, prob = configure_screen(settings, max_cell_size)
+    board_size, num_mines = settings[:2], int(settings[2])
 
     action = "retry"
     while action == "retry":
-        board = Board(board_size, prob)
+        board = Board(board_size, num_mines)
         game = Game(board, max_cell_size)
         action = game.run()
 

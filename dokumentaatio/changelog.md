@@ -23,3 +23,5 @@
 - Game -luokkaa sekä sen sisältäviä metodeja on pilkottu pienempiin osiin: uudet GameUI ja GameLogic -luokat hallitsevat pääsääntöisesti käyttöliittymää ja pelilogiikkaa.
 - Hyödynnetty tekoälyä (GitHub Copilot) refaktoroinnin apuna erityisesti luokkien välisten riippuvuuksien muuttamisessa ja metodikutsujen päivittämisessä uuden arkkitehtuurin mukaisiksi
 - Pelilaudan skaalausta parannettu: Pelilaudan ruutujen koko mukautuu nyt pelilaudan kokoon, main menun koko on kovakoodattuna
+- Nyt kaikki ruudut paljastuvat kun pelaaja voittaa/häviää
+- Miinojen lukumäärä on nyt tarkka arvo joka riippuu vaikeustasosta, ainoastaan sijainnit perustuvat todennäköisyyksiin

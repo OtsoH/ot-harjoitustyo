@@ -1,37 +1,42 @@
-from random import random
+import random
 from piece import Piece
 
 class Board():
     """Pelilaudan logiikasta vastaava luokka."""
-    def __init__(self, size, prob):
+    def __init__(self, size, num_mines):
         """Alustaa pelilaudan
 
         Args:
             size: Koko, johon pelilauta alustetaan (rivit, sarakkeet)
-            prob: Määrittää todennäköisyyten, jolla ruutuun asetetaan miina
+            num_mines: Miinojen määrä.
         """
         self.lost = False
         self.won = False
         self.size = size
-        self.prob = prob
         self.num_clicked = 0
         self.num_non_mines = 0
-        self.set_board()
+        self.clicked_mine = None
+        self.set_board(num_mines)
 
-    def set_board(self):
-        """Luo uuden pelilaudan ja asettaa miinat satunnaisesti."""
+    def set_board(self, num_mines):
+        """Luo uuden pelilaudan ja asettaa miinat satunnaisesti.
 
-        self.board = []
-        for _ in range(self.size[0]):
-            row = []
-            for _ in range(self.size[1]):
-                has_mine = random() < self.prob
-                if not has_mine:
-                    self.num_non_mines += 1
-                piece = Piece(has_mine)
-                row.append(piece)
-            self.board.append(row)
+        Args:
+            num_mines: Miinojen määrä.
+        """
+
+        num_mines = int(num_mines)
+
+        self.board = [[Piece(False) for _ in range(self.size[1])] for _ in range(self.size[0])]
+
+        all_positions = [(row, col) for row in range(self.size[0]) for col in range(self.size[1])]
+        mine_positions = random.sample(all_positions, num_mines)
+
+        for row, col in mine_positions:
+            self.board[row][col] = Piece(True)
+
         self.set_neighbours()
+        self.num_non_mines = self.size[0] * self.size[1] - num_mines
 
     def get_size(self):
         """Palauttaa laudan koon.
@@ -54,7 +59,6 @@ class Board():
 
     def set_neighbours(self):
         """Asettaa jokaiselle ruudulle sen naapurit."""
-
         for row in range(self.size[0]):
             for col in range(self.size[1]):
                 piece = self.get_piece((row, col))
@@ -95,21 +99,29 @@ class Board():
         piece.click()
         if piece.get_has_mine():
             self.lost = True
+            self.clicked_mine = piece
             return
         self.num_clicked += 1
+
         if piece.get_num() != 0:
             return
         for neighbour in piece.get_neighbours():
             if not neighbour.get_has_mine() and not neighbour.get_revealed():
                 self.clicking(neighbour, False)
 
-
     def get_lost(self):
         """Palauttaa True jos peli on hävitty."""
-
         return self.lost
 
     def get_won(self):
         """Palauttaa True jos peli on voitettu."""
-
         return self.num_non_mines == self.num_clicked
+
+    def reveal_all(self):
+        """Paljastaa kaikki avaamattomat ruudut."""
+        for row in self.board:
+            for piece in row:
+                if piece.get_num() > 0:
+                    piece.num = 0
+                if not piece.get_revealed():
+                    piece.click()
