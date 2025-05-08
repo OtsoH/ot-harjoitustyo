@@ -15,3 +15,4 @@
 | 15.4. | 1    | Lisää unittestejä, ensimmäisen sekvenssikaavion tekeminen |
 | 29.4. | 1.5  | Dogstring-dokumentaation lisääminen |
 | 7.5.  | 2.5  | Ohjelman refaktorointia, tehty uudet luokat GameUI ja GameLogic  |
+| 8.5.  | 1.5  | Pelilaudan skaalauksen parantelua  |

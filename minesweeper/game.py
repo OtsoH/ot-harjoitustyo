@@ -105,15 +105,12 @@ class GameUI:
     def draw_menu_title(self):
         """Piirtää pelin otsikon ja miinojen kuvat päävalikkoon."""
         title = self.config.font.render('Minesweeper', True, (255, 0, 0))
-        title_rect = title.get_rect(center=(self.screen_size[0]/2, 80))
+        title_rect = title.get_rect(center=(self.config.screen.get_width() / 2, 80))
 
         mine_size = (48, 48)
         mine_image = pygame.transform.scale(self.config.images['minex'], mine_size)
 
-        left_mine_pos = (
-            title_rect.left - mine_size[0] - 20,
-            title_rect.centery - mine_size[1]//2
-        )
+        left_mine_pos = (title_rect.left - mine_size[0] - 20, title_rect.centery - mine_size[1]//2)
         right_mine_pos = (title_rect.right + 20, title_rect.centery - mine_size[1]//2)
 
         self.config.screen.blit(title, title_rect)
@@ -171,7 +168,7 @@ class GameUI:
         """
         button_width = 200
         button_height = 50
-        button_x = self.screen_size[0] // 2 - button_width // 2
+        button_x = self.config.screen.get_width() // 2 - button_width // 2
 
         easy_button = pygame.Rect(button_x, 150, button_width, button_height)
         medium_button = pygame.Rect(button_x, 250, button_width, button_height)
@@ -247,7 +244,7 @@ class GameUI:
         for filename in os.listdir("images"):
             if not filename.endswith(".png"):
                 continue
-            image = pygame.image.load(r"images/" + filename)
+            image = pygame.image.load(os.path.join("images", filename))
             image = pygame.transform.scale(image, self.piece_size)
             self.config.images[filename.split(".")[0]] = image
 
@@ -303,21 +300,27 @@ class GameLogic:
 class Game:
     """Pelin pääluokka. Yhdistää käyttöliittymän ja pelilogiikan."""
 
-    def __init__(self, board, screen_size):
+    def __init__(self, board, max_cell_size=50, menu_screen_size=(800, 800)):
         """Alustaa pelin.
 
         Args:
             board: Board-olio, joka sisältää pelilaudan.
-            screen_size: tuple, näytön koko (leveys, korkeus).
+            max_cell_size: Yksittäisen ruudun maksimikoko pikseleinä.
+            menu_screen_size: tuple, päävalikon näytön koko (leveys, korkeus).
         """
         self.board = board
-        self.screen_size = screen_size
-        self.piece_size = (
-            self.screen_size[0] // self.board.get_size()[1],
-            self.screen_size[1] // self.board.get_size()[0]
+        self.max_cell_size = max_cell_size
+        self.menu_screen_size = menu_screen_size
+
+        board_size = self.board.get_size()
+
+        self.piece_size = (self.max_cell_size, self.max_cell_size)
+        self.screen_size = (
+            board_size[1] * self.piece_size[0],
+            board_size[0] * self.piece_size[1]
         )
 
-        self.ui = GameUI(screen_size, self.piece_size)
+        self.ui = GameUI(self.screen_size, self.piece_size)
         self.logic = GameLogic(board)
 
     def run(self):
@@ -358,7 +361,7 @@ class Game:
         """Näyttää pelin päävalikon ja käsittelee käyttäjän syötteet.
         Palauttaa valitun pelilaudan asetukset tuple-muodossa.
         """
-        self.ui.config.screen = pygame.display.set_mode((self.screen_size))
+        self.ui.config.screen = pygame.display.set_mode(self.menu_screen_size)
         pygame.display.set_caption("Minesweeper - Main Menu")
 
         buttons = self.ui.create_menu_buttons()
