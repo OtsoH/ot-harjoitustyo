@@ -13,7 +13,7 @@ def start(ctx):
 def coverage(ctx):
     pty = sys.platform != "win32"
     ctx.run(
-        "coverage run --branch --include='board.py,piece.py,main.py' --omit='tests/*,__init__.py,tasks.py,game.py' -m pytest tests/",
+        "coverage run --branch --include='board.py,piece.py' --omit='tests/*,__init__.py,tasks.py,game.py,main.py' -m pytest tests/",
         pty=pty
     )
 

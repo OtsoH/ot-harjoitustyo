@@ -16,5 +16,6 @@
 | 29.4. | 1.5  | Dogstring-dokumentaation lisääminen |
 | 7.5.  | 2.5  | Ohjelman refaktorointia, tehty uudet luokat GameUI ja GameLogic  |
 | 8.5.  | 1.5  | Pelilaudan skaalauksen parantelua  |
-| 8.5.  | 1    | Hieman uutta toiminnallisuutta: Ruutujen paljastus pelin lopuksi sekä miinojen tdn. korvaus lkm:llä
-| 9.5.  | 4    | Lisätty Custom Game, muutettu miinanpaljastusalgoritmia
+| 8.5.  | 1    | Hieman uutta toiminnallisuutta: Ruutujen paljastus pelin lopuksi sekä miinojen tdn. korvaus lkm:llä |
+| 9.5.  | 4    | Lisätty Custom Game, muutettu miinanpaljastusalgoritmia |
+| 9.5.  | 0.5  | Testaamisen edistämistä |

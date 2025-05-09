@@ -816,5 +816,3 @@ class CustomGame:
         self.ui.draw_buttons(button_data)
 
         pygame.display.flip()
-
-
