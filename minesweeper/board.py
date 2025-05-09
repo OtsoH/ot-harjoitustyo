@@ -91,23 +91,37 @@ class Board():
             piece: Klikattu ruutu.
             flag: True, jos asetetaan lippu.
         """
+        if piece is None:
+            return
+
         if piece.get_revealed() or (not flag and piece.get_flagged()):
             return
         if flag:
             piece.set_flagged()
             return
-        piece.click()
+
         if piece.get_has_mine():
+            piece.click()
             self.lost = True
             self.clicked_mine = piece
             return
-        self.num_clicked += 1
 
-        if piece.get_num() != 0:
-            return
-        for neighbour in piece.get_neighbours():
-            if not neighbour.get_has_mine() and not neighbour.get_revealed():
-                self.clicking(neighbour, False)
+        to_process = [piece]
+
+        while to_process:
+            current = to_process.pop(0)
+
+            if current.get_revealed() or current.get_flagged():
+                continue
+
+            current.click()
+            self.num_clicked += 1
+
+            if current.get_num() == 0:
+                for neighbour in current.get_neighbours():
+                    if not neighbour.get_revealed() and not neighbour.get_has_mine() and not neighbour.get_flagged():
+                        if neighbour not in to_process:
+                            to_process.append(neighbour)
 
     def get_lost(self):
         """Palauttaa True jos peli on hävitty."""

@@ -91,6 +91,7 @@ class GameUI:
             (buttons["easy"], 'Easy'),
             (buttons["medium"], 'Medium'),
             (buttons["hard"], 'Hard'),
+            (buttons["custom"], 'Custom'),
             (buttons["quit"], 'Quit')
         ]
 
@@ -104,22 +105,40 @@ class GameUI:
 
     def draw_menu_title(self):
         """Piirtää pelin otsikon ja miinojen kuvat päävalikkoon."""
-        title = self.config.font.render('Minesweeper', True, (255, 0, 0))
+        self.draw_title('Minesweeper', 'minex', (255, 0, 0))
+
+    def draw_title(self, title_text, icon_name="minex", color=(255, 0, 0)):
+        """Piirtää pelin otsikon ja kuvat sen molemmin puolin."""
+        title = self.config.font.render(title_text, True, color)
         title_rect = title.get_rect(center=(self.config.screen.get_width() / 2, 80))
 
-        mine_size = (48, 48)
-        mine_image = pygame.transform.scale(self.config.images['minex'], mine_size)
+        icon_size = (48, 48)
+        icon_image = pygame.transform.scale(self.config.images[icon_name], icon_size)
 
-        left_mine_pos = (title_rect.left - mine_size[0] - 20, title_rect.centery - mine_size[1]//2)
-        right_mine_pos = (title_rect.right + 20, title_rect.centery - mine_size[1]//2)
+        left_icon_pos = (title_rect.left - icon_size[0] - 20, title_rect.centery - icon_size[1]//2)
+        right_icon_pos = (title_rect.right + 20, title_rect.centery - icon_size[1]//2)
 
         self.config.screen.blit(title, title_rect)
-        self.config.screen.blit(mine_image, left_mine_pos)
-        self.config.screen.blit(mine_image, right_mine_pos)
+        self.config.screen.blit(icon_image, left_icon_pos)
+        self.config.screen.blit(icon_image, right_icon_pos)
 
-    def draw_game_over_background(self, board, game_logic, images, config):
-        """Piirtää pelin loppuvalikon taustan ja viestit."""
-        self.draw_board(board, game_logic, images)
+    def draw_game_over_background(self, config):
+        """Piirtää pelin loppuvalikon taustan ja viestit.
+
+        Args:
+            config: Sanakirja, joka sisältää:
+                - message: Näytettävä viesti ("You Won!" tai "You Lost!")
+                - color: Viestin väri
+                - title_font: Otsikon fontti
+                - time_font: Ajan näyttämiseen käytettävä fontti
+                - message_y: Viestin y-koordinaatti
+                - time_y: Ajan y-koordinaatti
+                - won: True jos pelaaja voitti
+                - elapsed_time: Peliin kulunut aika
+                - board: Pelilauta (Board-olio)
+                - logic: Pelilogiikka (GameLogic-olio)
+        """
+        self.draw_board(config["board"], config["logic"], self.config.images)
 
         overlay = pygame.Surface(self.screen_size, pygame.SRCALPHA)
         overlay.fill((255, 255, 255, 180))
@@ -171,14 +190,16 @@ class GameUI:
         button_x = self.config.screen.get_width() // 2 - button_width // 2
 
         easy_button = pygame.Rect(button_x, 150, button_width, button_height)
-        medium_button = pygame.Rect(button_x, 250, button_width, button_height)
-        hard_button = pygame.Rect(button_x, 350, button_width, button_height)
-        quit_button = pygame.Rect(button_x, 450, button_width, button_height)
+        medium_button = pygame.Rect(button_x, 230, button_width, button_height)
+        hard_button = pygame.Rect(button_x, 310, button_width, button_height)
+        custom_button = pygame.Rect(button_x, 390, button_width, button_height)
+        quit_button = pygame.Rect(button_x, 470, button_width, button_height)
 
         return {
             "easy": easy_button,
             "medium": medium_button,
             "hard": hard_button,
+            "custom": custom_button,
             "quit": quit_button,
             "width": button_width,
             "height": button_height
@@ -248,9 +269,77 @@ class GameUI:
             image = pygame.transform.scale(image, self.piece_size)
             self.config.images[filename.split(".")[0]] = image
 
+    #Generoitu koodi alkaa
+    def draw_slider(self, value, min_value, max_value, slider_rect, slider_color=(200, 200, 200),
+                    handle_color=(255, 0, 0), label=None, label_color=(255, 0, 0)):
+        """Piirtää liukusäätimen ja sen kahvan.
+
+        Args:
+            value: Liukusäätimen nykyinen arvo
+            min_value: Liukusäätimen minimiarvo
+            max_value: Liukusäätimen maksimiarvo
+            slider_rect: Liukusäätimen Rect-olio (tausta)
+            slider_color: Liukusäätimen taustan väri, oletuksena (200, 200, 200)
+            handle_color: Liukusäätimen kahvan väri, oletuksena (255, 0, 0)
+            label: Liukusäätimen otsikko, esim. "Size: 15x15"
+            label_color: Otsikon väri, oletuksena (255, 0, 0)
+
+        Returns:
+            pygame.Rect: Palauttaa liukusäätimen kahvan Rect-olion.
+        """
+        pygame.draw.rect(self.config.screen, slider_color, slider_rect)
+
+        pygame.draw.rect(self.config.screen, (0, 0, 0), slider_rect, 2)
+
+        handle_x = slider_rect.left + ((value - min_value) / (max_value - min_value)) * slider_rect.width
+
+        handle_height = slider_rect.height + 10
+        handle_rect = pygame.Rect(handle_x - 5, slider_rect.top - 5, 10, handle_height)
+        pygame.draw.rect(self.config.screen, handle_color, handle_rect)
+
+        if label:
+            label_surface = self.config.menu_font.render(label, True, label_color)
+            self.config.screen.blit(label_surface, (slider_rect.left, slider_rect.top - 40))
+
+        return handle_rect
+
+    def create_slider(self, name, x, y, width, height, min_value, max_value, initial_value):
+        """Luo liukusäätimen määritettyjen parametrien mukaan.
+
+        Args:
+            name: Liukusäätimen nimi (tunniste)
+            x: Liukusäätimen x-koordinaatti
+            y: Liukusäätimen y-koordinaatti
+            width: Liukusäätimen leveys
+            height: Liukusäätimen korkeus
+            min_value: Liukusäätimen minimiarvo
+            max_value: Liukusäätimen maksimiarvo
+            initial_value: Liukusäätimen alkuarvo
+
+        Returns:
+            dict: Sisältää liukusäätimen tiedot:
+                - rect: Liukusäätimen Rect-olio
+                - min_value: Minimiarvo
+                - max_value: Maksimiarvo
+                - value: Nykyinen arvo
+                - width: Leveys
+                - height: Korkeus
+        """
+        slider_rect = pygame.Rect(x, y, width, height)
+
+        return {
+            "name": name,
+            "rect": slider_rect,
+            "min_value": min_value,
+            "max_value": max_value,
+            "value": initial_value,
+            "width": width,
+            "height": height
+        }
+    #Generoitu koodi loppuu
+
 class GameLogic:
     """Pelin logiikasta ja tilanhallinnasta vastaava luokka."""
-
     def __init__(self, board):
         """Alustaa pelilogiikan.
 
@@ -301,7 +390,6 @@ class GameLogic:
 
 class Game:
     """Pelin pääluokka. Yhdistää käyttöliittymän ja pelilogiikan."""
-
     def __init__(self, board, max_cell_size=50, menu_screen_size=(800, 800)):
         """Alustaa pelin.
 
@@ -324,6 +412,7 @@ class Game:
 
         self.ui = GameUI(self.screen_size, self.piece_size)
         self.logic = GameLogic(board)
+        self.custom_game = CustomGame(self.menu_screen_size, self.ui)
 
     def run(self):
         """Pelin pääsilmukka. Käsittelee tapahtumat, piirtää pelin ja tarkistaa pelin tilan."""
@@ -398,6 +487,9 @@ class Game:
                     return (16, 16, 40)
                 if buttons["hard"].collidepoint(mouse_pos):
                     return (16, 30, 99)
+                if buttons["custom"].collidepoint(mouse_pos):
+                    custom_game = CustomGame(self.menu_screen_size, self.ui)
+                    return custom_game.show_settings()
                 if buttons["quit"].collidepoint(mouse_pos):
                     pygame.quit()
                     return None
@@ -426,11 +518,13 @@ class Game:
             "time_y": button_sizes["time_y"],
             "buttons": buttons,
             "won": won,
-            "elapsed_time": self.logic.elapsed_time
+            "elapsed_time": self.logic.elapsed_time,
+            "board": self.board,
+            "logic": self.logic
         }
 
         while True:
-            self.ui.draw_game_over_background(self.board, self.logic, self.ui.config.images, config)
+            self.ui.draw_game_over_background(config)
 
             button_data = [
                 (config["buttons"]["retry"], "Retry"),
@@ -469,4 +563,258 @@ class Game:
                     return "main_menu"
 
         return None
+
+class CustomGame:
+    """Vastaa custom-peliasetuksien käsittelystä."""
+    def __init__(self, menu_screen_size, ui):
+        """Alustaa custom-pelivalikon.
+
+        Args:
+            menu_screen_size: tuple, päävalikon näytön koko.
+            ui: GameUI-olio, joka vastaa UI-elementtien piirtämisestä.
+        """
+        self.menu_screen_size = menu_screen_size
+        self.ui = ui
+
+    def show_settings(self):
+        """Näyttää custom-peliasetukset ja käsittelee käyttäjän syötteet.
+
+        Returns:
+            tuple (rivit, sarakkeet, miinojen määrä) tai None.
+        """
+        original_screen = self.ui.config.screen.copy()
+
+        min_size = 5
+        max_size = 50
+        initial_rows = 15
+        initial_cols = 15
+        initial_mines = 30
+
+        slider_width = 300
+        slider_height = 20
+        slider_x = self.menu_screen_size[0] // 2 - slider_width // 2
+
+        rows_slider = self.ui.create_slider("rows", slider_x, 150, slider_width, slider_height,
+                                           min_size, max_size, initial_rows)
+        cols_slider = self.ui.create_slider("cols", slider_x, 220, slider_width, slider_height,
+                                           min_size, max_size, initial_cols)
+        mines_slider = self.ui.create_slider("mines", slider_x, 290, slider_width, slider_height,
+                                            1, initial_rows * initial_cols - 1, initial_mines)
+
+        ok_button = pygame.Rect(self.menu_screen_size[0]//2 - 100, 370, 200, 50)
+        back_button = pygame.Rect(self.menu_screen_size[0]//2 - 100, 440, 200, 50)
+
+        active_slider = None
+
+        rows_value = initial_rows
+        cols_value = initial_cols
+        mines_value = initial_mines
+        max_mines = rows_value * cols_value - 1
+
+        game_settings = {
+            'rows_value': rows_value,
+            'cols_value': cols_value,
+            'mines_value': mines_value,
+            'min_size': min_size,
+            'max_size': max_size,
+            'max_mines': max_mines,
+            'rows_slider': rows_slider["rect"],
+            'cols_slider': cols_slider["rect"],
+            'mines_slider': mines_slider["rect"],
+            'ok_button': ok_button,
+            'back_button': back_button,
+            'slider_width': slider_width,
+            'slider_height': slider_height
+        }
+
+        while True:
+            game_settings['max_mines'], game_settings['mines_value'] = self.update_ui(game_settings)
+
+            rows_slider["value"] = game_settings['rows_value']
+            cols_slider["value"] = game_settings['cols_value']
+            mines_slider["value"] = game_settings['mines_value']
+            mines_slider["max_value"] = game_settings['max_mines']
+
+            result = self.handle_events(original_screen, game_settings, active_slider)
+
+            if result is None:
+                continue
+
+            action, values = result
+
+            if action == "update":
+                game_settings['rows_value'] = values["rows_value"]
+                game_settings['cols_value'] = values["cols_value"]
+                game_settings['mines_value'] = values["mines_value"]
+                active_slider = values["active_slider"]
+            elif action == "ok":
+                return values
+            elif action == "back":
+                return None
+
+    def update_ui(self, game_settings):
+        """Päivittää custom game -ikkunan käyttöliittymän tilan.
+
+        Args:
+            game_settings: Sanakirja, joka sisältää asetukset.
+
+        Returns:
+            tuple: (max_mines, mines_value)
+        """
+        max_mines = max(1, game_settings['rows_value'] * game_settings['cols_value'] - 1)
+
+        mines_value = min(game_settings['mines_value'], max_mines)
+
+        self.draw_custom_game(game_settings)
+
+        return max_mines, mines_value
+
+    def handle_events(self, original_screen, game_settings, active_slider):
+        """Käsittelee custom game -ikkunan tapahtumat.
+
+        Args:
+            original_screen: Alkuperäinen näyttö.
+            game_settings: Sanakirja, joka sisältää asetukset.
+            active_slider: Aktiivinen liukusäädin tai None.
+
+        Returns:
+            tuple: (action, values) tai None.
+        """
+        rows_value = game_settings['rows_value']
+        cols_value = game_settings['cols_value']
+        mines_value = game_settings['mines_value']
+        min_size = game_settings['min_size']
+        max_size = game_settings['max_size']
+        max_mines = game_settings['max_mines']
+        rows_slider = game_settings['rows_slider']
+        cols_slider = game_settings['cols_slider']
+        mines_slider = game_settings['mines_slider']
+        ok_button = game_settings['ok_button']
+        back_button = game_settings['back_button']
+        slider_width = game_settings['slider_width']
+        slider_height = game_settings['slider_height']
+
+        rows_handle_x = rows_slider.left + (rows_value - min_size) / (max_size - min_size) * slider_width
+        cols_handle_x = cols_slider.left + (cols_value - min_size) / (max_size - min_size) * slider_width
+        mines_handle_x = mines_slider.left + (mines_value / max_mines) * slider_width
+
+        rows_handle = pygame.Rect(rows_handle_x - 5, rows_slider.top - 5, 10, slider_height + 10)
+        cols_handle = pygame.Rect(cols_handle_x - 5, cols_slider.top - 5, 10, slider_height + 10)
+        mines_handle = pygame.Rect(mines_handle_x - 5, mines_slider.top - 5, 10, slider_height + 10)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+
+                if rows_handle.collidepoint(mouse_pos):
+                    return ("update", {"active_slider": "rows", "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
+                elif cols_handle.collidepoint(mouse_pos):
+                    return ("update", {"active_slider": "cols", "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
+                elif mines_handle.collidepoint(mouse_pos):
+                    return ("update", {"active_slider": "mines", "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
+                elif rows_slider.collidepoint(mouse_pos):
+                    new_rows_value = min_size + (mouse_pos[0] - rows_slider.left) / slider_width * (max_size - min_size)
+                    new_rows_value = max(min_size, min(max_size, int(new_rows_value)))
+                    return ("update", {"active_slider": "rows", "rows_value": new_rows_value, "cols_value": cols_value, "mines_value": mines_value})
+                elif cols_slider.collidepoint(mouse_pos):
+                    new_cols_value = min_size + (mouse_pos[0] - cols_slider.left) / slider_width * (max_size - min_size)
+                    new_cols_value = max(min_size, min(max_size, int(new_cols_value)))
+                    return ("update", {"active_slider": "cols", "rows_value": rows_value, "cols_value": new_cols_value, "mines_value": mines_value})
+                elif mines_slider.collidepoint(mouse_pos):
+                    new_mines_value = (mouse_pos[0] - mines_slider.left) / slider_width * max_mines
+                    new_mines_value = max(1, min(max_mines, int(new_mines_value)))
+                    return ("update", {"active_slider": "mines", "rows_value": rows_value, "cols_value": cols_value, "mines_value": new_mines_value})
+                elif ok_button.collidepoint(mouse_pos):
+                    self.ui.config.screen.blit(original_screen, (0, 0))
+                    return ("ok", (rows_value, cols_value, mines_value))
+                elif back_button.collidepoint(mouse_pos):
+                    self.ui.config.screen.blit(original_screen, (0, 0))
+                    return ("back", None)
+                else:
+                    return ("update", {"active_slider": None, "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                return ("update", {"active_slider": None, "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
+
+            elif event.type == pygame.MOUSEMOTION:
+                if active_slider:
+                    mouse_x = pygame.mouse.get_pos()[0]
+                    if active_slider == "rows":
+                        new_rows_value = min_size + (mouse_x - rows_slider.left) / slider_width * (max_size - min_size)
+                        new_rows_value = max(min_size, min(max_size, int(new_rows_value)))
+                        return ("update", {"active_slider": active_slider, "rows_value": new_rows_value, "cols_value": cols_value, "mines_value": mines_value})
+                    elif active_slider == "cols":
+                        new_cols_value = min_size + (mouse_x - cols_slider.left) / slider_width * (max_size - min_size)
+                        new_cols_value = max(min_size, min(max_size, int(new_cols_value)))
+                        return ("update", {"active_slider": active_slider, "rows_value": rows_value, "cols_value": new_cols_value, "mines_value": mines_value})
+                    elif active_slider == "mines":
+                        new_mines_value = (mouse_x - mines_slider.left) / slider_width * max_mines
+                        new_mines_value = max(1, min(max_mines, int(new_mines_value)))
+                        return ("update", {"active_slider": active_slider, "rows_value": rows_value, "cols_value": cols_value, "mines_value": new_mines_value})
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    self.ui.config.screen.blit(original_screen, (0, 0))
+                    return ("back", None)
+
+                elif event.key == pygame.K_RETURN:
+                    self.ui.config.screen.blit(original_screen, (0, 0))
+                    return ("ok", (rows_value, cols_value, mines_value))
+
+        return None
+
+    def draw_custom_game(self, game_settings):
+        """Piirtää custom game -asetusikkunan käyttöliittymän.
+
+        Args:
+            game_settings: Sanakirja, joka sisältää:
+                - rows_value: Pelilaudan rivien määrä
+                - cols_value: Pelilaudan sarakkeiden määrä
+                - mines_value: Miinojen määrä
+                - min_size: Pienin sallittu koko
+                - max_size: Suurin sallittu koko
+                - max_mines: Suurin sallittu miinojen määrä
+                - rows_slider: Rivien liukusäätimen Rect-olio
+                - cols_slider: Sarakkeiden liukusäätimen Rect-olio
+                - mines_slider: Miinojen liukusäätimen Rect-olio
+                - ok_button: OK-painikkeen Rect-olio
+                - back_button: Back-painikkeen Rect-olio
+                - slider_width: Liukusäätimen leveys
+                - slider_height: Liukusäätimen korkeus
+        """
+        self.ui.config.screen.fill((255, 255, 255))
+
+        self.ui.draw_title('Custom Game', 'questionmark', (255, 0, 0))
+
+        rows_text = f"Rows: {game_settings['rows_value']}"
+        cols_text = f"Columns: {game_settings['cols_value']}"
+        mines_text = f"Mines: {game_settings['mines_value']}"
+
+        self.ui.draw_slider(
+            game_settings['rows_value'], game_settings['min_size'], game_settings['max_size'],
+            game_settings['rows_slider'], label=rows_text, label_color=(255, 0, 0)
+        )
+
+        self.ui.draw_slider(
+            game_settings['cols_value'], game_settings['min_size'], game_settings['max_size'],
+            game_settings['cols_slider'], label=cols_text, label_color=(255, 0, 0)
+        )
+
+        self.ui.draw_slider(
+            game_settings['mines_value'], 1, game_settings['max_mines'],
+            game_settings['mines_slider'], label=mines_text, label_color=(255, 0, 0)
+        )
+
+        button_data = [
+            (game_settings['ok_button'], 'OK'),
+            (game_settings['back_button'], 'Back')
+        ]
+        self.ui.draw_buttons(button_data)
+
+        pygame.display.flip()
+
 

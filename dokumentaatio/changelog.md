@@ -25,3 +25,6 @@
 - Pelilaudan skaalausta parannettu: Pelilaudan ruutujen koko mukautuu nyt pelilaudan kokoon, main menun koko on kovakoodattuna
 - Nyt kaikki ruudut paljastuvat kun pelaaja voittaa/häviää
 - Miinojen lukumäärä on nyt tarkka arvo joka riippuu vaikeustasosta, ainoastaan sijainnit perustuvat todennäköisyyksiin
+- Tehty uusi CustomGame -luokka, joka vastaa uudesta Custom Game -pelimuodosta.
+- Custom Game -pelimuotoa varten on lisätty liukusäätimet, joiden suunnitteluun sekä implementaatioon hyödynnetty tekoälyä (GitHub Copilot)
+- Muutettu Board-luokassa oleva miinanpaljastusalgoritmi rekursiivisesta iteratiiviseksi
