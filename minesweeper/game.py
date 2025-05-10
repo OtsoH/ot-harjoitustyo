@@ -429,8 +429,12 @@ class Game:
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     position = pygame.mouse.get_pos()
-                    flagging = pygame.mouse.get_pressed()[2]
-                    self.logic.handle_click(position, self.piece_size, flagging)
+                    if event.button == 1:
+                        flagging = False
+                        self.logic.handle_click(position, self.piece_size, flagging)
+                    elif event.button == 3:
+                        flagging = True
+                        self.logic.handle_click(position, self.piece_size, flagging)
 
             elapsed = self.logic.update_time()
             pygame.display.set_caption(f"Minesweeper - Time: {elapsed:.2f}s")
@@ -517,7 +521,7 @@ class Game:
             score_font = pygame.font.SysFont('verdana', 20, bold=True)
 
             if not scores:
-                no_scores = score_font.render("No score yet", True, (255, 0, 0))
+                no_scores = score_font.render("Not completed", True, (255, 0, 0))
                 no_scores_rect = no_scores.get_rect(center=(surface_width//2, surface_height//2))
                 surface.blit(no_scores, no_scores_rect)
             else:
@@ -532,16 +536,16 @@ class Game:
         """Näyttää high score -tekstit kaikkien vaikeustasojen vieressä."""
         self.ui.config.screen.blit(
             self.highscore_surfaces["Easy"],
-            (buttons["easy"].right + 10, buttons["easy"].top)
+            (buttons["easy"].right + 10, buttons["easy"].centery - self.highscore_surfaces["Easy"].get_height()//2)
         )
         self.ui.config.screen.blit(
             self.highscore_surfaces["Medium"],
-            (buttons["medium"].right + 10, buttons["medium"].top)
+            (buttons["medium"].right + 10, buttons["medium"].centery - self.highscore_surfaces["Medium"].get_height()//2)
         )
 
         self.ui.config.screen.blit(
             self.highscore_surfaces["Hard"],
-            (buttons["hard"].right + 10, buttons["hard"].top)
+            (buttons["hard"].right + 10, buttons["hard"].centery - self.highscore_surfaces["Hard"].get_height()//2)
         )
 
     def prepare_and_display_highscores(self, buttons):
