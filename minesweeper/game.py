@@ -1,4 +1,4 @@
-# pylint: disable=no-member
+# pylint: disable:no-member
 import os
 import time
 import pygame
@@ -68,7 +68,6 @@ class GameUI:
                 (button_width, button_height)
             )
             self.config.screen.blit(button_image, button)
-
             text_surface = font.render(text, True, (255, 255, 255))
             text_rect = text_surface.get_rect(center=button.center)
             self.config.screen.blit(text_surface, text_rect)
@@ -85,7 +84,7 @@ class GameUI:
         """
         self.config.screen.fill((255, 255, 255))
 
-        self.draw_menu_title()
+        self.draw_title('Minesweeper', 'minex', (255, 0, 0))
 
         button_list = [
             (buttons["easy"], 'Easy'),
@@ -100,12 +99,6 @@ class GameUI:
             width=buttons["width"],
             height=buttons["height"]
         )
-
-        pygame.display.flip()
-
-    def draw_menu_title(self):
-        """Piirtää pelin otsikon ja miinojen kuvat päävalikkoon."""
-        self.draw_title('Minesweeper', 'minex', (255, 0, 0))
 
     def draw_title(self, title_text, icon_name="minex", color=(255, 0, 0)):
         """Piirtää pelin otsikon ja kuvat sen molemmin puolin."""
@@ -390,21 +383,23 @@ class GameLogic:
 
 class Game:
     """Pelin pääluokka. Yhdistää käyttöliittymän ja pelilogiikan."""
-    def __init__(self, board, max_cell_size=50, menu_screen_size=(800, 800)):
+    def __init__(self, board, max_piece_size=50, menu_screen_size=(800, 800), db=None):
         """Alustaa pelin.
 
         Args:
             board: Board-olio, joka sisältää pelilaudan.
-            max_cell_size: Yksittäisen ruudun maksimikoko pikseleinä.
+            max_piece_size: Yksittäisen ruudun maksimikoko pikseleinä.
             menu_screen_size: tuple, päävalikon näytön koko (leveys, korkeus).
+            db: GameDatabase-instanssi.
         """
         self.board = board
-        self.max_cell_size = max_cell_size
+        self.max_piece_size = max_piece_size
         self.menu_screen_size = menu_screen_size
+        self.db = db
 
         board_size = self.board.get_size()
 
-        self.piece_size = (self.max_cell_size, self.max_cell_size)
+        self.piece_size = (self.max_piece_size, self.max_piece_size)
         self.screen_size = (
             board_size[1] * self.piece_size[0],
             board_size[0] * self.piece_size[1]
@@ -413,6 +408,12 @@ class Game:
         self.ui = GameUI(self.screen_size, self.piece_size)
         self.logic = GameLogic(board)
         self.custom_game = CustomGame(self.menu_screen_size, self.ui)
+
+        self.difficulty_settings = {
+            "easy": {"size": (9, 9), "mines": 10, "name": "Easy"},
+            "medium": {"size": (16, 16), "mines": 40, "name": "Medium"},
+            "hard": {"size": (16, 30), "mines": 99, "name": "Hard"}
+        }
 
     def run(self):
         """Pelin pääsilmukka. Käsittelee tapahtumat, piirtää pelin ja tarkistaa pelin tilan."""
@@ -451,62 +452,120 @@ class Game:
         self.ui.draw_board(self.board, self.logic, self.ui.config.images)
 
     def main_menu(self):
-        """Näyttää pelin päävalikon ja käsittelee käyttäjän syötteet.
-        Palauttaa valitun pelilaudan asetukset tuple-muodossa.
-        """
+        """Näyttää pelin päävalikon ja käsittelee käyttäjän syötteet."""
         self.ui.config.screen = pygame.display.set_mode(self.menu_screen_size)
         pygame.display.set_caption("Minesweeper - Main Menu")
 
         buttons = self.ui.create_menu_buttons()
+        self.ui.draw_menu_screen(buttons)
+        if self.db:
+            self.prepare_and_display_highscores(buttons)
+        pygame.display.flip()
+
+        clock = pygame.time.Clock()
+        need_redraw = False
 
         while True:
-            self.ui.draw_menu_screen(buttons)
-            result = self._handle_menu_events(buttons)
-            if result is not None:
-                return result
+            need_redraw = False
 
-    def _handle_menu_events(self, buttons):
-        """Käsittelee päävalikon tapahtumat.
-
-        Args:
-            buttons: sisältää painikkeiden Rect-oliot.
-
-        Returns:
-            Palauttaa pelilaudan asetukset tai None.
-        """
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return None
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                if buttons["easy"].collidepoint(mouse_pos):
-                    return (9, 9, 10)
-                if buttons["medium"].collidepoint(mouse_pos):
-                    return (16, 16, 40)
-                if buttons["hard"].collidepoint(mouse_pos):
-                    return (16, 30, 99)
-                if buttons["custom"].collidepoint(mouse_pos):
-                    custom_game = CustomGame(self.menu_screen_size, self.ui)
-                    return custom_game.show_settings()
-                if buttons["quit"].collidepoint(mouse_pos):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     pygame.quit()
                     return None
-        return None
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    need_redraw = True
+                    mouse_pos = pygame.mouse.get_pos()
+
+                    if buttons["easy"].collidepoint(mouse_pos):
+                        return (9, 9, 10)
+                    if buttons["medium"].collidepoint(mouse_pos):
+                        return (16, 16, 40)
+                    if buttons["hard"].collidepoint(mouse_pos):
+                        return (16, 30, 99)
+                    if buttons["custom"].collidepoint(mouse_pos):
+                        custom_game = CustomGame(self.menu_screen_size, self.ui)
+                        custom_settings = custom_game.show_settings()
+                        if custom_settings is None:
+                            continue
+                        else:
+                            return custom_settings
+                    if buttons["quit"].collidepoint(mouse_pos):
+                        pygame.quit()
+                        return None
+
+            if need_redraw:
+                self.ui.draw_menu_screen(buttons)
+                if self.db:
+                    self.prepare_and_display_highscores(buttons)
+                pygame.display.flip()
+            clock.tick(30)
+
+    def prepare_all_highscores(self):
+        """Valmistelee high score -tekstit kaikille vaikeustasoille."""
+        if not hasattr(self, 'highscore_surfaces'):
+            self.highscore_surfaces = {}
+
+        for difficulty in ["Easy", "Medium", "Hard"]:
+            scores = self.db.get_high_scores(difficulty, limit=1)
+
+            surface_width = 180
+            surface_height = 30
+
+            surface = pygame.Surface((surface_width, surface_height), pygame.SRCALPHA)
+            surface.fill((255, 255, 255, 180))
+            score_font = pygame.font.SysFont('verdana', 20, bold=True)
+
+            if not scores:
+                no_scores = score_font.render("No score yet", True, (255, 0, 0))
+                no_scores_rect = no_scores.get_rect(center=(surface_width//2, surface_height//2))
+                surface.blit(no_scores, no_scores_rect)
+            else:
+                time_value = scores[0][0]
+                score_text = score_font.render(f"Best: {time_value:.2f}s", True, (0, 200, 0))
+                score_rect = score_text.get_rect(center=(surface_width//2, surface_height//2))
+                surface.blit(score_text, score_rect)
+
+            self.highscore_surfaces[difficulty] = surface
+
+    def display_all_highscores(self, buttons):
+        """Näyttää high score -tekstit kaikkien vaikeustasojen vieressä."""
+        self.ui.config.screen.blit(
+            self.highscore_surfaces["Easy"],
+            (buttons["easy"].right + 10, buttons["easy"].top)
+        )
+        self.ui.config.screen.blit(
+            self.highscore_surfaces["Medium"],
+            (buttons["medium"].right + 10, buttons["medium"].top)
+        )
+
+        self.ui.config.screen.blit(
+            self.highscore_surfaces["Hard"],
+            (buttons["hard"].right + 10, buttons["hard"].top)
+        )
+
+    def prepare_and_display_highscores(self, buttons):
+        """Varmistaa, että high score -tiedot on valmisteltu ja näyttää ne."""
+        if not self.db:
+            return
+
+        if not hasattr(self, 'highscore_surfaces'):
+            self.prepare_all_highscores()
+
+        self.display_all_highscores(buttons)
 
     def show_game_over_menu(self, won):
-        """Näyttää pelin loppuvalikon (voitit/hävisit).
-
-        Args:
-            won: True jos pelaaja voitti.
-
-        Returns:
-            Palauttaa "retry" tai "main_menu" käyttäjän valinnan mukaan.
-        """
+        """Näyttää pelin loppuvalikon (voitit/hävisit)."""
         button_sizes = self.ui.calculate_button_sizes()
         buttons = self.ui.create_game_over_buttons(button_sizes)
         message, colors, fonts = self.ui.prepare_game_over_text(won)
+
+        if won and self.db:
+            difficulty = self.get_current_difficulty()
+            if difficulty:
+                self.db.save_score(difficulty, self.logic.elapsed_time)
+                if hasattr(self, 'highscore_surfaces'):
+                    self.prepare_all_highscores()
 
         config = {
             "message": message,
@@ -561,6 +620,21 @@ class Game:
                     return "retry"
                 if main_menu_button.collidepoint(mouse_pos):
                     return "main_menu"
+
+        return None
+
+    def get_current_difficulty(self):
+        """Määrittää nykyisen vaikeustason pelilaudan koon ja miinojen määrän perusteella.
+
+        Returns:
+            str: Vaikeustason nimi ("Easy", "Medium", "Hard") tai None jos Custom Game
+        """
+        board_size = self.board.get_size()
+        mine_count = self.board.size[0] * self.board.size[1] - self.board.num_non_mines
+
+        for _, settings in self.difficulty_settings.items():
+            if (board_size == settings["size"] and mine_count == settings["mines"]):
+                return settings["name"]
 
         return None
 
@@ -680,6 +754,7 @@ class CustomGame:
         Returns:
             tuple: (action, values) tai None.
         """
+        #Generoitu koodi alkaa
         rows_value = game_settings['rows_value']
         cols_value = game_settings['cols_value']
         mines_value = game_settings['mines_value']
@@ -755,6 +830,7 @@ class CustomGame:
                         new_mines_value = (mouse_x - mines_slider.left) / slider_width * max_mines
                         new_mines_value = max(1, min(max_mines, int(new_mines_value)))
                         return ("update", {"active_slider": active_slider, "rows_value": rows_value, "cols_value": cols_value, "mines_value": new_mines_value})
+        #Generoitu koodi loppuu
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:

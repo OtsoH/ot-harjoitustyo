@@ -19,3 +19,4 @@
 | 8.5.  | 1    | Hieman uutta toiminnallisuutta: Ruutujen paljastus pelin lopuksi sekä miinojen tdn. korvaus lkm:llä |
 | 9.5.  | 4    | Lisätty Custom Game, muutettu miinanpaljastusalgoritmia |
 | 9.5.  | 0.5  | Testaamisen edistämistä |
+| 10.5. | 3    | Toimivan tietokannan lisääminen |

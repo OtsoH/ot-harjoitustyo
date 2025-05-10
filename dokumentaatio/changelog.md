@@ -28,3 +28,4 @@
 - Tehty uusi CustomGame -luokka, joka vastaa uudesta Custom Game -pelimuodosta.
 - Custom Game -pelimuotoa varten on lisätty liukusäätimet, joiden suunnitteluun sekä implementaatioon hyödynnetty tekoälyä (GitHub Copilot)
 - Muutettu Board-luokassa oleva miinanpaljastusalgoritmi rekursiivisesta iteratiiviseksi
+- Lisätty sqlite3 -tietokanta pelaajan highscoren tallentamiseksi/näyttämiseksi
