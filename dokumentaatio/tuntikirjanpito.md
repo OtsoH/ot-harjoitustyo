@@ -22,3 +22,4 @@
 | 10.5. | 3    | Toimivan tietokannan lisääminen |
 | 11.5. | 2.5  | Dokumentaation parantelua |
 | 11.5. | 1.5  | Ohjelman testaamista virtuaaliympäristössä, GameConfig-luokan poisto |
+| 11.5. | 1.5  | Dokumentaation viimeistelyä |

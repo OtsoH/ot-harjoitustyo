@@ -10,7 +10,7 @@
 
 # **Testikattavuus**
 ![Testikattavuusraportti](./kuvat/testikattavuusraportti.png)
-- Testien ulkopuolelle jäivät Game.py tiedoston luokat, sillä ne ovat Pygame-riippuvuuden vuoksi vaikeasti testattavia.
+- Testien ulkopuolelle jäivät game.py tiedoston luokat, sillä ne olivat Pygame-riippuvuuden vuoksi vaikeasti testattavia.
 
 ## **Järjestelmätestaus**
-- Sovelluksen järjestelmätestaus on suoritettu manuaalisesti sekä Windowsissa, että Cubbli Linux virtuaaliympäristössä.
+- Sovelluksen järjestelmätestaus on suoritettu manuaalisesti sekä Windowsissa, että Cubbli Linux virtuaalityöasemassa.

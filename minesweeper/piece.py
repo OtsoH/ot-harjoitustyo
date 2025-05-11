@@ -1,6 +1,5 @@
 class Piece():
     """Yksittäistä pelilaudan ruutua kuvaava luokka."""
-
     def __init__(self, has_mine):
         """Alustaa Piece-olion.
 
