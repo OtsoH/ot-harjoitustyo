@@ -3,15 +3,14 @@
 ## **Rakenne**
 ```mermaid
 classDiagram
+    classDiagram
     Game "1" --> "1" GameUI
     Game "1" --> "1" GameLogic
     Game "1" --> "1" Board
-    Game "1" --> "1" GameConfig
     Game "1" --> "1" GameDatabase
     Game "1" --> "1" CustomGame
     Board "1" *-- "*" Piece
     Piece --> Piece
-    GameUI --> GameConfig
     CustomGame --> GameUI
     GameLogic --> Board
 ```
