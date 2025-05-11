@@ -43,3 +43,6 @@ Minesweeper on klassinen yksinpelattava logiikkapeli, jossa pelaajan tavoitteena
   - `minesweeper/`: Sisältää pelin lähdekoodin sekä testit.
   - `dokumentaatio/`: Sisältää projektin dokumentaation.
   - `images/`: Sisältää pelin graafiset elementit.
+
+## **Selvitys tekoälypohjaisten välineiden käytöstä**
+- Tekoälyä (GitHub Copilot) on käytetty projektissa Game-luokan refaktoroinnissa (merkinnät changelogissa) sekä erityisesti CustomGame-luokan käsittelijämetodien pilkkomisessa pienempiin, selkeämmin yksittäisestä vastuualueesta huolehtiviin metodeihin. Lisäksi Copilotia hyödynnettiin liukusäätimien toteuttamiseen custom-pelimuodossa. Koodi, joka on suoraan tekoälyn generoimmaa on merkitty vielä erikseen koodissa.
