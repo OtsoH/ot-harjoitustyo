@@ -16,21 +16,26 @@ Minesweeper on klassinen yksinpelattava logiikkapeli, jossa pelaajan tavoitteena
 - Peli päättyy:
   - **Voittoon**, kun kaikki miinattomat ruudut on avattu.
   - **Häviöön**, kun pelaaja avaa ruudun, jossa on miina.
+  - Pelaaja voi tällöin joko yrittää uudelleen tai palata päävalikkoon
+- Peli käyttää sqlite3-tietokantaa highscoren tallentamiseen, joka näytetään pelaajalle päävalikossa
 
 ### **2.2 Vaikeustasot**
-- Pelissä on kolme vaikeustasoa:
+- Pelissä on kolme vaikeustasoa sekä custom-pelimuoto:
   - **Helppo**: Pieni pelilauta ja vähän miinoja.
   - **Keskitaso**: Keskikokoinen pelilauta ja enemmän miinoja.
   - **Vaikea**: Suuri pelilauta ja paljon miinoja.
+  - **Custom**: Määritä itse pelilaudan koko (leveys, korkeus) sekä miinojen määrä.
 
 ### **2.3 Graafinen käyttöliittymä**
 - Pelissä on visuaalinen käyttöliittymä, joka näyttää:
   - Pelilaudan ja ruutujen tilan.
-  - Miinojen ja lippujen määrän.
+  - Kuluneen aika (otsikkopalkissa)
   - Pelin tilan (voitto/häviö).
+  - Pelaajan parhaan ajan kyseisessä vaikeustasossa
 
 ## **4. Tekninen toteutus**
 - **Ohjelmointikieli**: Python
+- **Tietokanta**: sqlite3
 - **Kirjastot**:
   - `pygame`: Käytetään graafisen käyttöliittymän toteutukseen.
   - `random`: Miinojen satunnaiseen sijoittamiseen.
