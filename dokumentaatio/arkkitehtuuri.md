@@ -3,7 +3,6 @@
 ## **Rakenne**
 ```mermaid
 classDiagram
-    classDiagram
     Game "1" --> "1" GameUI
     Game "1" --> "1" GameLogic
     Game "1" --> "1" Board
@@ -123,4 +122,4 @@ sequenceDiagram
     GameUI-->>Game: Highscore-näyttö päivitetty
 ```
 
-- Kun peli päättyy voittoon, GameLogic-luokka ilmoittaa Game-luokalle voittoehdon täyttymisestä. Game-luokka kutsuu tietokantakerroksen (GameDatabase) save_score-metodia ja antaa parametriksi vaikeustason sekä peliajan. GameDatabase tarkistaa, onko uusi aika parempi kuin aiempi, ja tallentaa sen tarvittaessa. Tämän jälkeen Game hakee parhaat ajat kutsumalla GameDatabase:n get_high_scores-metodia.  Saatuaan parhaat ajat Game päivittää highscore-näytöt kutsumalla omaa prepare_all_highscores-metodiaan, joka luo highscore-tekstit GameUI:n avulla. Game päivittää highscore-näytöt kutsumalla omia prepare_all_highscores- ja display_all_highscores-metodejaan, jotka käyttävät GameUI:ta piirtämiseen. Näin päivitetyt highscoret näytetään päävalikossa pelaajalle.
+- Kun peli päättyy voittoon, GameLogic-luokka ilmoittaa Game-luokalle voittoehdon täyttymisestä. Game-luokka kutsuu tietokantakerroksen (GameDatabase) save_score-metodia ja antaa parametriksi vaikeustason sekä peliajan. GameDatabase tarkistaa, onko uusi aika parempi kuin aiempi, ja tallentaa sen tarvittaessa. Tämän jälkeen Game hakee parhaat ajat kutsumalla GameDatabase:n get_high_scores-metodia. Saatuaan parhaat ajat Game päivittää highscore-näytöt kutsumalla omaa prepare_all_highscores-metodiaan, joka luo highscore-tekstit. Game-luokka käyttää GameUI-luokkaa päävalikon piirtämiseen ja käyttää display_all_highscores-metodia highscore-pintojen sijoittamiseen näytölle. Näin päivitetyt highscoret näytetään päävalikossa pelaajalle.

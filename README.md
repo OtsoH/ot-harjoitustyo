@@ -6,14 +6,10 @@ Pelissä käytetyt kuvat ovat peräisin [Andreas Isnes Nilseniltä](https://gith
 ## **Releases**
 - [Viikko 5](https://github.com/OtsoH/ot-harjoitustyo/releases/tag/viikko5)
 
-## **Käyttöohjeet**
-
-**Käynnistä peli**:
-- Siirry hakemistoon `minesweeper`
-- Suorita `main.py`-tiedosto Pythonilla.
-
 ## **Hakemistot**
-- [**Tuntikirjanpito**](dokumentaatio/tuntikirjanpito.md)
-- [**Changelog**](dokumentaatio/changelog.md)
+- [**Käyttöohje**](dokumentaatio/kayttoohje.md)
 - [**Määrittelydokumentti**](dokumentaatio/maarittelydokumentti.md)
+- [**Changelog**](dokumentaatio/changelog.md)
 - [**Arkkitehtuurikuvaus**](dokumentaatio/arkkitehtuuri.md)
+- [**Testausdokumentti**](dokumentaatio/testaus.md)
+- [**Tuntikirjanpito**](dokumentaatio/tuntikirjanpito.md)

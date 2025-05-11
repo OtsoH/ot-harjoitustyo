@@ -13,7 +13,7 @@ def start(ctx):
 def coverage(ctx):
     pty = sys.platform != "win32"
     ctx.run(
-        "coverage run --branch --include='board.py,piece.py' --omit='tests/*,__init__.py,tasks.py,game.py,main.py,database.py' -m pytest tests/",
+        "coverage run --branch --include='board.py,piece.py,database.py' --omit='tests/*,__init__.py,tasks.py,game.py,main.py' -m pytest tests/",
         pty=pty
     )
 
@@ -34,7 +34,7 @@ def test(ctx):
 @task()
 def lint(ctx):
     pty = sys.platform != "win32"
-    ctx.run("pylint board.py game.py main.py piece.py", pty=pty)
+    ctx.run("pylint board.py game.py main.py piece.py database.py", pty=pty)
 
 @task()
 def coverage_check(ctx):

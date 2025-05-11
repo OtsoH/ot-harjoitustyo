@@ -40,6 +40,6 @@ Minesweeper on klassinen yksinpelattava logiikkapeli, jossa pelaajan tavoitteena
   - `pygame`: Käytetään graafisen käyttöliittymän toteutukseen.
   - `random`: Miinojen satunnaiseen sijoittamiseen.
 - **Hakemistorakenne**:
-  - `minesweeper/`: Sisältää pelin lähdekoodin.
+  - `minesweeper/`: Sisältää pelin lähdekoodin sekä testit.
   - `dokumentaatio/`: Sisältää projektin dokumentaation.
   - `images/`: Sisältää pelin graafiset elementit.

@@ -1,4 +1,4 @@
-# pylint: disable:no-member
+# pylint: disable=no-member
 import os
 import time
 import pygame
@@ -253,6 +253,7 @@ class GameUI:
 
         return message, colors, fonts
 
+    #Generoitu koodi alkaa
     def draw_slider(self, value, min_value, max_value, slider_rect, slider_color=(200, 200, 200),
                     handle_color=(255, 0, 0), label=None, label_color=(255, 0, 0)):
         """Piirtää liukusäätimen ja sen kahvan.
@@ -319,6 +320,57 @@ class GameUI:
             "width": width,
             "height": height
         }
+    #Generoitu koodi loppuu
+
+    def draw_custom_game(self, game_settings):
+        """Piirtää custom game -asetusikkunan käyttöliittymän.
+
+        Args:
+            game_settings: Sanakirja, joka sisältää:
+                - rows_value: Pelilaudan rivien määrä
+                - cols_value: Pelilaudan sarakkeiden määrä
+                - mines_value: Miinojen määrä
+                - min_size: Pienin sallittu koko
+                - max_size: Suurin sallittu koko
+                - max_mines: Suurin sallittu miinojen määrä
+                - rows_slider: Rivien liukusäätimen Rect-olio
+                - cols_slider: Sarakkeiden liukusäätimen Rect-olio
+                - mines_slider: Miinojen liukusäätimen Rect-olio
+                - ok_button: OK-painikkeen Rect-olio
+                - back_button: Back-painikkeen Rect-olio
+                - slider_width: Liukusäätimen leveys
+                - slider_height: Liukusäätimen korkeus
+        """
+        self.screen.fill((255, 255, 255))
+
+        self.draw_title('Custom Game', 'questionmark', (255, 0, 0))
+
+        rows_text = f"Rows: {game_settings['rows_value']}"
+        cols_text = f"Columns: {game_settings['cols_value']}"
+        mines_text = f"Mines: {game_settings['mines_value']}"
+
+        self.draw_slider(
+            game_settings['rows_value'], game_settings['min_size'], game_settings['max_size'],
+            game_settings['rows_slider'], label=rows_text, label_color=(255, 0, 0)
+        )
+
+        self.draw_slider(
+            game_settings['cols_value'], game_settings['min_size'], game_settings['max_size'],
+            game_settings['cols_slider'], label=cols_text, label_color=(255, 0, 0)
+        )
+
+        self.draw_slider(
+            game_settings['mines_value'], 1, game_settings['max_mines'],
+            game_settings['mines_slider'], label=mines_text, label_color=(255, 0, 0)
+        )
+
+        button_data = [
+            (game_settings['ok_button'], 'OK'),
+            (game_settings['back_button'], 'Back')
+        ]
+        self.draw_buttons(button_data)
+
+        pygame.display.flip()
 
 class GameLogic:
     """Pelin logiikasta ja tilanhallinnasta vastaava luokka."""
@@ -729,25 +781,82 @@ class CustomGame:
             tuple: (max_mines, mines_value)
         """
         max_mines = max(1, game_settings['rows_value'] * game_settings['cols_value'] - 1)
-
         mines_value = min(game_settings['mines_value'], max_mines)
 
-        self.draw_custom_game(game_settings)
+        self.ui.draw_custom_game(game_settings)
 
         return max_mines, mines_value
 
     def handle_events(self, original_screen, game_settings, active_slider):
-        """Käsittelee custom game -ikkunan tapahtumat.
+        """Käsittelee custom game -ikkunan tapahtumat."""
+        handles = self._create_slider_handles(game_settings)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return None
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                return self._handle_mouse_down(event, original_screen, game_settings, handles)
+
+            elif event.type == pygame.MOUSEBUTTONUP:
+                return self._handle_mouse_up(game_settings)
+
+            elif event.type == pygame.MOUSEMOTION:
+                if active_slider:
+                    return self._handle_mouse_motion(event, game_settings, active_slider)
+
+        return None
+
+    #Generoitu koodi alkaa
+    def _create_slider_handles(self, game_settings):
+        """Luo liukusäätimien kahvat.
 
         Args:
-            original_screen: Alkuperäinen näyttö.
             game_settings: Sanakirja, joka sisältää asetukset.
-            active_slider: Aktiivinen liukusäädin tai None.
 
         Returns:
-            tuple: (action, values) tai None.
+            dict: Liukusäätimien kahvat
         """
-    #Generoitu koodi alkaa
+        rows_value = game_settings['rows_value']
+        cols_value = game_settings['cols_value']
+        mines_value = game_settings['mines_value']
+        min_size = game_settings['min_size']
+        max_size = game_settings['max_size']
+        max_mines = game_settings['max_mines']
+        rows_slider = game_settings['rows_slider']
+        cols_slider = game_settings['cols_slider']
+        mines_slider = game_settings['mines_slider']
+        slider_width = game_settings['slider_width']
+        slider_height = game_settings['slider_height']
+
+        rows_handle_x = rows_slider.left + (rows_value - min_size) / (max_size - min_size) * slider_width
+        cols_handle_x = cols_slider.left + (cols_value - min_size) / (max_size - min_size) * slider_width
+        mines_handle_x = mines_slider.left + (mines_value / max_mines) * slider_width
+
+        rows_handle = pygame.Rect(rows_handle_x - 5, rows_slider.top - 5, 10, slider_height + 10)
+        cols_handle = pygame.Rect(cols_handle_x - 5, cols_slider.top - 5, 10, slider_height + 10)
+        mines_handle = pygame.Rect(mines_handle_x - 5, mines_slider.top - 5, 10, slider_height + 10)
+
+        return {
+            "rows": rows_handle,
+            "cols": cols_handle,
+            "mines": mines_handle
+        }
+
+    def _handle_mouse_down(self, event, original_screen, game_settings, handles):
+        """Käsittelee hiiren painallustapahtumat.
+
+        Args:
+            event: Pygame-tapahtuma
+            original_screen: Alkuperäinen näyttö
+            game_settings: Sanakirja, joka sisältää asetukset
+            handles: Liukusäätimien kahvat
+
+        Returns:
+            tuple: (action, values) tai None
+        """
+        mouse_pos = event.pos
         rows_value = game_settings['rows_value']
         cols_value = game_settings['cols_value']
         mines_value = game_settings['mines_value']
@@ -760,128 +869,111 @@ class CustomGame:
         ok_button = game_settings['ok_button']
         back_button = game_settings['back_button']
         slider_width = game_settings['slider_width']
-        slider_height = game_settings['slider_height']
 
-        rows_handle_x = rows_slider.left + (rows_value - min_size) / (max_size - min_size) * slider_width
-        cols_handle_x = cols_slider.left + (cols_value - min_size) / (max_size - min_size) * slider_width
-        mines_handle_x = mines_slider.left + (mines_value / max_mines) * slider_width
+        if handles["rows"].collidepoint(mouse_pos):
+            return ("update", {"active_slider": "rows", "rows_value": rows_value,
+                              "cols_value": cols_value, "mines_value": mines_value})
+        elif handles["cols"].collidepoint(mouse_pos):
+            return ("update", {"active_slider": "cols", "rows_value": rows_value,
+                              "cols_value": cols_value, "mines_value": mines_value})
+        elif handles["mines"].collidepoint(mouse_pos):
+            return ("update", {"active_slider": "mines", "rows_value": rows_value,
+                              "cols_value": cols_value, "mines_value": mines_value})
 
-        rows_handle = pygame.Rect(rows_handle_x - 5, rows_slider.top - 5, 10, slider_height + 10)
-        cols_handle = pygame.Rect(cols_handle_x - 5, cols_slider.top - 5, 10, slider_height + 10)
-        mines_handle = pygame.Rect(mines_handle_x - 5, mines_slider.top - 5, 10, slider_height + 10)
+        elif rows_slider.collidepoint(mouse_pos):
+            new_rows_value = self._calculate_slider_value(mouse_pos[0], rows_slider.left,
+                                                         slider_width, min_size, max_size)
+            return ("update", {"active_slider": "rows", "rows_value": new_rows_value,
+                              "cols_value": cols_value, "mines_value": mines_value})
+        elif cols_slider.collidepoint(mouse_pos):
+            new_cols_value = self._calculate_slider_value(mouse_pos[0], cols_slider.left,
+                                                         slider_width, min_size, max_size)
+            return ("update", {"active_slider": "cols", "rows_value": rows_value,
+                              "cols_value": new_cols_value, "mines_value": mines_value})
+        elif mines_slider.collidepoint(mouse_pos):
+            new_mines_value = int((mouse_pos[0] - mines_slider.left) / slider_width * max_mines)
+            new_mines_value = max(1, min(max_mines, new_mines_value))
+            return ("update", {"active_slider": "mines", "rows_value": rows_value,
+                              "cols_value": cols_value, "mines_value": new_mines_value})
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                return None
+        elif ok_button.collidepoint(mouse_pos):
+            self.ui.screen.blit(original_screen, (0, 0))
+            return ("ok", (rows_value, cols_value, mines_value))
+        elif back_button.collidepoint(mouse_pos):
+            self.ui.screen.blit(original_screen, (0, 0))
+            return ("back", None)
+        else:
+            return ("update", {"active_slider": None, "rows_value": rows_value,
+                              "cols_value": cols_value, "mines_value": mines_value})
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-
-                if rows_handle.collidepoint(mouse_pos):
-                    return ("update", {"active_slider": "rows", "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
-                elif cols_handle.collidepoint(mouse_pos):
-                    return ("update", {"active_slider": "cols", "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
-                elif mines_handle.collidepoint(mouse_pos):
-                    return ("update", {"active_slider": "mines", "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
-                elif rows_slider.collidepoint(mouse_pos):
-                    new_rows_value = min_size + (mouse_pos[0] - rows_slider.left) / slider_width * (max_size - min_size)
-                    new_rows_value = max(min_size, min(max_size, int(new_rows_value)))
-                    return ("update", {"active_slider": "rows", "rows_value": new_rows_value, "cols_value": cols_value, "mines_value": mines_value})
-                elif cols_slider.collidepoint(mouse_pos):
-                    new_cols_value = min_size + (mouse_pos[0] - cols_slider.left) / slider_width * (max_size - min_size)
-                    new_cols_value = max(min_size, min(max_size, int(new_cols_value)))
-                    return ("update", {"active_slider": "cols", "rows_value": rows_value, "cols_value": new_cols_value, "mines_value": mines_value})
-                elif mines_slider.collidepoint(mouse_pos):
-                    new_mines_value = (mouse_pos[0] - mines_slider.left) / slider_width * max_mines
-                    new_mines_value = max(1, min(max_mines, int(new_mines_value)))
-                    return ("update", {"active_slider": "mines", "rows_value": rows_value, "cols_value": cols_value, "mines_value": new_mines_value})
-                elif ok_button.collidepoint(mouse_pos):
-                    self.ui.screen.blit(original_screen, (0, 0))
-                    return ("ok", (rows_value, cols_value, mines_value))
-                elif back_button.collidepoint(mouse_pos):
-                    self.ui.screen.blit(original_screen, (0, 0))
-                    return ("back", None)
-                else:
-                    return ("update", {"active_slider": None, "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
-
-            elif event.type == pygame.MOUSEBUTTONUP:
-                return ("update", {"active_slider": None, "rows_value": rows_value, "cols_value": cols_value, "mines_value": mines_value})
-
-            elif event.type == pygame.MOUSEMOTION:
-                if active_slider:
-                    mouse_x = pygame.mouse.get_pos()[0]
-                    if active_slider == "rows":
-                        new_rows_value = min_size + (mouse_x - rows_slider.left) / slider_width * (max_size - min_size)
-                        new_rows_value = max(min_size, min(max_size, int(new_rows_value)))
-                        return ("update", {"active_slider": active_slider, "rows_value": new_rows_value, "cols_value": cols_value, "mines_value": mines_value})
-                    elif active_slider == "cols":
-                        new_cols_value = min_size + (mouse_x - cols_slider.left) / slider_width * (max_size - min_size)
-                        new_cols_value = max(min_size, min(max_size, int(new_cols_value)))
-                        return ("update", {"active_slider": active_slider, "rows_value": rows_value, "cols_value": new_cols_value, "mines_value": mines_value})
-                    elif active_slider == "mines":
-                        new_mines_value = (mouse_x - mines_slider.left) / slider_width * max_mines
-                        new_mines_value = max(1, min(max_mines, int(new_mines_value)))
-                        return ("update", {"active_slider": active_slider, "rows_value": rows_value, "cols_value": cols_value, "mines_value": new_mines_value})
-
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    self.ui.screen.blit(original_screen, (0, 0))
-                    return ("back", None)
-
-                elif event.key == pygame.K_RETURN:
-                    self.ui.screen.blit(original_screen, (0, 0))
-                    return ("ok", (rows_value, cols_value, mines_value))
-
-        return None
-
-    def draw_custom_game(self, game_settings):
-        """Piirtää custom game -asetusikkunan käyttöliittymän.
+    def _handle_mouse_up(self, game_settings):
+        """Käsittelee hiiren vapautustapahtumat.
 
         Args:
-            game_settings: Sanakirja, joka sisältää:
-                - rows_value: Pelilaudan rivien määrä
-                - cols_value: Pelilaudan sarakkeiden määrä
-                - mines_value: Miinojen määrä
-                - min_size: Pienin sallittu koko
-                - max_size: Suurin sallittu koko
-                - max_mines: Suurin sallittu miinojen määrä
-                - rows_slider: Rivien liukusäätimen Rect-olio
-                - cols_slider: Sarakkeiden liukusäätimen Rect-olio
-                - mines_slider: Miinojen liukusäätimen Rect-olio
-                - ok_button: OK-painikkeen Rect-olio
-                - back_button: Back-painikkeen Rect-olio
-                - slider_width: Liukusäätimen leveys
-                - slider_height: Liukusäätimen korkeus
+            game_settings: Sanakirja, joka sisältää asetukset
+
+        Returns:
+            tuple: (action, values)
         """
-        self.ui.screen.fill((255, 255, 255))
+        rows_value = game_settings['rows_value']
+        cols_value = game_settings['cols_value']
+        mines_value = game_settings['mines_value']
 
-        self.ui.draw_title('Custom Game', 'questionmark', (255, 0, 0))
+        return ("update", {"active_slider": None, "rows_value": rows_value,
+                          "cols_value": cols_value, "mines_value": mines_value})
 
-        rows_text = f"Rows: {game_settings['rows_value']}"
-        cols_text = f"Columns: {game_settings['cols_value']}"
-        mines_text = f"Mines: {game_settings['mines_value']}"
+    def _handle_mouse_motion(self, event, game_settings, active_slider):
+        """Käsittelee hiiren liikutustapahtumat.
 
-        self.ui.draw_slider(
-            game_settings['rows_value'], game_settings['min_size'], game_settings['max_size'],
-            game_settings['rows_slider'], label=rows_text, label_color=(255, 0, 0)
-        )
+        Args:
+            event: Pygame-tapahtuma
+            game_settings: Sanakirja, joka sisältää asetukset
+            active_slider: Aktiivinen liukusäädin
 
-        self.ui.draw_slider(
-            game_settings['cols_value'], game_settings['min_size'], game_settings['max_size'],
-            game_settings['cols_slider'], label=cols_text, label_color=(255, 0, 0)
-        )
+        Returns:
+            tuple: (action, values)
+        """
+        mouse_x = event.pos[0]
+        rows_value = game_settings['rows_value']
+        cols_value = game_settings['cols_value']
+        mines_value = game_settings['mines_value']
+        min_size = game_settings['min_size']
+        max_size = game_settings['max_size']
+        max_mines = game_settings['max_mines']
+        rows_slider = game_settings['rows_slider']
+        cols_slider = game_settings['cols_slider']
+        mines_slider = game_settings['mines_slider']
+        slider_width = game_settings['slider_width']
 
-        self.ui.draw_slider(
-            game_settings['mines_value'], 1, game_settings['max_mines'],
-            game_settings['mines_slider'], label=mines_text, label_color=(255, 0, 0)
-        )
+        if active_slider == "rows":
+            new_rows_value = self._calculate_slider_value(mouse_x, rows_slider.left,
+                                                         slider_width, min_size, max_size)
+            return ("update", {"active_slider": active_slider, "rows_value": new_rows_value,
+                              "cols_value": cols_value, "mines_value": mines_value})
+        elif active_slider == "cols":
+            new_cols_value = self._calculate_slider_value(mouse_x, cols_slider.left,
+                                                         slider_width, min_size, max_size)
+            return ("update", {"active_slider": active_slider, "rows_value": rows_value,
+                              "cols_value": new_cols_value, "mines_value": mines_value})
+        elif active_slider == "mines":
+            new_mines_value = int((mouse_x - mines_slider.left) / slider_width * max_mines)
+            new_mines_value = max(1, min(max_mines, new_mines_value))
+            return ("update", {"active_slider": active_slider, "rows_value": rows_value,
+                              "cols_value": cols_value, "mines_value": new_mines_value})
 
-        button_data = [
-            (game_settings['ok_button'], 'OK'),
-            (game_settings['back_button'], 'Back')
-        ]
-        self.ui.draw_buttons(button_data)
+    def _calculate_slider_value(self, mouse_x, slider_left, slider_width, min_value, max_value):
+        """Laskee liukusäätimen arvon hiiren sijainnin perusteella.
 
-        pygame.display.flip()
+        Args:
+            mouse_x: Hiiren x-koordinaatti
+            slider_left: Liukusäätimen vasemman reunan x-koordinaatti
+            slider_width: Liukusäätimen leveys
+            min_value: Liukusäätimen minimiarvo
+            max_value: Liukusäätimen maksimiarvo
+
+        Returns:
+            int: Liukusäätimen arvo
+        """
+        value = min_value + (mouse_x - slider_left) / slider_width * (max_value - min_value)
+        return max(min_value, min(max_value, int(value)))
     #Generoitu koodi loppuu
