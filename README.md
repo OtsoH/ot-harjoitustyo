@@ -5,6 +5,7 @@ Pelissä käytetyt kuvat ovat peräisin [Andreas Isnes Nilseniltä](https://gith
 
 ## **Releases**
 - [Viikko 5](https://github.com/OtsoH/ot-harjoitustyo/releases/tag/viikko5)
+- [Lopullinen palautus](https://github.com/OtsoH/ot-harjoitustyo/releases/tag/Loppupalautus)
 
 ## **Hakemistot**
 - [**Käyttöohje**](dokumentaatio/kayttoohje.md)
